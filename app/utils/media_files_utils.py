@@ -118,25 +118,25 @@ def filter_files(app: Flask, files: pd.DataFrame, args: ArgsDict) -> pd.DataFram
         if arg_type in args:
             arg_value = cast(ArgValueScalarInt, args[arg_type])
             if arg_value and int(float(str(row.year))) < arg_value:
-                app.logger.info(
+                app.logger.debug(
                     "skipping file (value=%s) based on filter arg %s=%s",
                     arg_value,
                     arg_type,
                     arg_value,
                 )
-                app.logger.info("filter_files args=%s", args_dict_to_str(args))
+                app.logger.debug("filter_files args=%s", args_dict_to_str(args))
                 continue
         arg_type = ArgTypes.Scalar.Int.MaxYear
         if arg_type in args:
             arg_value = cast(ArgValueScalarInt, args[arg_type])
             if arg_value and int(float(str(row.year))) > arg_value:
-                app.logger.info(
+                app.logger.debug(
                     "skipping file (value=%s) based on filter arg %s=%s",
                     arg_value,
                     arg_type,
                     arg_value,
                 )
-                app.logger.info("filter_files args=%s", args_dict_to_str(args))
+                app.logger.debug("filter_files args=%s", args_dict_to_str(args))
                 continue
         # ArgTypeListStr:
         skip = False
@@ -162,15 +162,19 @@ def filter_files(app: Flask, files: pd.DataFrame, args: ArgsDict) -> pd.DataFram
         for arg_type, file_value in arg_type_list_file_value_map.items():
             if arg_type in args:
                 arg_value_list = cast(ArgValueListStr, args[arg_type])
-                app.logger.info("filtering based on %s[] arg = [%s]", arg_type, arg_value_list)
-                if len(arg_value_list) and not str_in_list_ignore_case(file_value, arg_value_list):
-                    app.logger.info(
+                app.logger.debug(
+                    "filtering based on %s[] arg = [%s]", arg_type, arg_value_list
+                )
+                if len(arg_value_list) and not str_in_list_ignore_case(
+                    file_value, arg_value_list
+                ):
+                    app.logger.debug(
                         "skipping file (value=%s) based on %s[] arg = [%s]",
                         file_value,
                         arg_type,
                         arg_value_list,
                     )
-                    app.logger.info("filter_files args=%s", args_dict_to_str(args))
+                    app.logger.debug("filter_files args=%s", args_dict_to_str(args))
                     skip = True
                     break
         if not skip:
@@ -199,15 +203,21 @@ def filter_artists(app: Flask, artists: pd.DataFrame, args: ArgsDict) -> pd.Data
         for arg_type, file_value in arg_type_list_file_value_map.items():
             if arg_type in args:
                 arg_value_list = cast(ArgValueListStr, args[arg_type])
-                app.logger.info("filtering artist based on %s[] arg = [%s]", arg_type, arg_value_list)
-                if len(arg_value_list) and not str_in_list_ignore_case(file_value, arg_value_list):
-                    app.logger.info(
+                app.logger.debug(
+                    "filtering artist based on %s[] arg = [%s]",
+                    arg_type,
+                    arg_value_list,
+                )
+                if len(arg_value_list) and not str_in_list_ignore_case(
+                    file_value, arg_value_list
+                ):
+                    app.logger.debug(
                         "skipping artist (value=%s) based on %s[] arg = [%s]",
                         file_value,
                         arg_type,
                         arg_value_list,
                     )
-                    app.logger.info("filter_artists args=%s", args_dict_to_str(args))
+                    app.logger.debug("filter_artists args=%s", args_dict_to_str(args))
                     skip = True
                     break
         if not skip:
@@ -217,7 +227,9 @@ def filter_artists(app: Flask, artists: pd.DataFrame, args: ArgsDict) -> pd.Data
     return pd.DataFrame(results)
 
 
-def get_files_list(app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict) -> List[MediaFile]:
+def get_files_list(
+    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+) -> List[MediaFile]:
     files_list = filter_files(app, files, args)
     return df_to_mediafile_list(files_list)
 
@@ -242,7 +254,9 @@ def get_genre_counts(files: pd.DataFrame, sort: str) -> Dict[str, int]:
         return dict(sorted(ret.items(), key=lambda item: item[1], reverse=True))
 
 
-def get_tracks(app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict) -> List[MediaFile]:
+def get_tracks(
+    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+) -> List[MediaFile]:
     df = filter_files(app, files, args)
 
     sort = ArgValues.Scalar.Enum.Sort.Random
@@ -273,7 +287,9 @@ def get_tracks(app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: Arg
     return df_to_mediafile_list(df)
 
 
-def get_artist_counts(app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict) -> Dict[str, int]:
+def get_artist_counts(
+    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+) -> Dict[str, int]:
     """
     TODO: I want this function to get track counts from files but filter based on countryCode etc.
     TODO: Update filter files to filter on countryCode, etc., since we're using the table joined data frame.
@@ -282,7 +298,9 @@ def get_artist_counts(app: Flask, files: pd.DataFrame, artists: pd.DataFrame, ar
 
     files_filtered = filter_files(app, files, args)
     for f in files_filtered.itertuples():
-        name = str(f.albumartist)  # alternatively could use f.name (artist name from artist.yml data)
+        name = str(
+            f.albumartist
+        )  # alternatively could use f.name (artist name from artist.yml data)
         if name in ret:
             ret[name] += 1
         else:
@@ -358,14 +376,18 @@ class ArtistQueryCountInfo:
 # TODO: Consolidate these count functions (lots of duplication)
 
 
-def get_artist_country_code_counts(app: Flask, artists: pd.DataFrame, args: ArgsDict) -> List[ArtistQueryCountInfo]:
+def get_artist_country_code_counts(
+    app: Flask, artists: pd.DataFrame, args: ArgsDict
+) -> List[ArtistQueryCountInfo]:
     code_name_map = get_country_code_name_map(app)
 
     counts: ArtistGeoCounts = {}
     for artist in artists.itertuples():
         code = str(artist.countrycode)
         if code not in code_name_map:
-            app.logger.error("Failed to find name for countrycode=%s artist=%s", code, artist)
+            app.logger.error(
+                "Failed to find name for countrycode=%s artist=%s", code, artist
+            )
         else:
             value = code_name_map[code]
             url = url_for("main.artists", sort="count", countryCode=code)
@@ -385,14 +407,18 @@ def get_artist_country_code_counts(app: Flask, artists: pd.DataFrame, args: Args
     return ret
 
 
-def get_artist_region_code_counts(app: Flask, artists: pd.DataFrame, args: ArgsDict) -> List[ArtistQueryCountInfo]:
+def get_artist_region_code_counts(
+    app: Flask, artists: pd.DataFrame, args: ArgsDict
+) -> List[ArtistQueryCountInfo]:
     code_name_map = get_region_code_name_map(app)
 
     counts: ArtistGeoCounts = {}
     for artist in artists.itertuples():
         code = str(artist.regioncode)
         if code not in code_name_map:
-            app.logger.error("Failed to find name for regioncode=%s artist=%s", code, artist)
+            app.logger.error(
+                "Failed to find name for regioncode=%s artist=%s", code, artist
+            )
         else:
             value = code_name_map[code]
             url = url_for("main.artists", sort="count", regionCode=code)
@@ -412,14 +438,18 @@ def get_artist_region_code_counts(app: Flask, artists: pd.DataFrame, args: ArgsD
     return ret
 
 
-def get_artist_language_code_counts(app: Flask, artists: pd.DataFrame, args: ArgsDict) -> List[ArtistQueryCountInfo]:
+def get_artist_language_code_counts(
+    app: Flask, artists: pd.DataFrame, args: ArgsDict
+) -> List[ArtistQueryCountInfo]:
     code_name_map = get_language_code_name_map(app)
 
     counts: ArtistGeoCounts = {}
     for artist in artists.itertuples():
         code = str(artist.languagecode)
         if code not in code_name_map:
-            app.logger.error("Failed to find name for languagecode=%s artist=%s", code, artist)
+            app.logger.error(
+                "Failed to find name for languagecode=%s artist=%s", code, artist
+            )
         else:
             value = code_name_map[code]
             url = url_for("main.artists", sort="count", languageCode=code)
@@ -439,7 +469,9 @@ def get_artist_language_code_counts(app: Flask, artists: pd.DataFrame, args: Arg
     return ret
 
 
-def get_artist_city_counts(app: Flask, artists: pd.DataFrame, args: ArgsDict) -> List[ArtistQueryCountInfo]:
+def get_artist_city_counts(
+    app: Flask, artists: pd.DataFrame, args: ArgsDict
+) -> List[ArtistQueryCountInfo]:
     country_code_name_map = get_country_code_name_map(app)
     region_code_name_map = get_region_code_name_map(app)
 
@@ -459,7 +491,9 @@ def get_artist_city_counts(app: Flask, artists: pd.DataFrame, args: ArgsDict) ->
         if len(city_qualifiers):
             city_uniq = f"{city_uniq} ({', '.join(city_qualifiers)})"
         value = city_uniq
-        url = url_for("main.artists", sort="count", city=city, regionCode=rc, countryCode=cc)
+        url = url_for(
+            "main.artists", sort="count", city=city, regionCode=rc, countryCode=cc
+        )
         uniq_key = (value, url)
         if uniq_key in counts:
             counts[uniq_key] += 1
@@ -476,7 +510,9 @@ def get_artist_city_counts(app: Flask, artists: pd.DataFrame, args: ArgsDict) ->
     return ret
 
 
-def get_artists(app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict) -> List[str]:
+def get_artists(
+    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+) -> List[str]:
     """
     This is currently only used by the word cloud
     """
@@ -499,7 +535,9 @@ def get_artists(app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: Ar
         return sorted(ret)
 
 
-def get_artist(app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict) -> tuple[Any, ...] | None:
+def get_artist(
+    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+) -> tuple[Any, ...] | None:
     """
     Similar to get_artists but only gets a single artists and displays links (album, tracks, shuffle)
     """
@@ -533,7 +571,11 @@ def get_cover_path(config: MediaServerConfig, file: MediaFile) -> Path:
         # e.g. "/data/Music/Logic/Orville%20[2022]/cover.jpg"
         # config.playback_methods.local.media_path = "/data/Music/"
         # config.album_covers_path = "/var/www/html/Covers/"
-        dir_path = Path(str(dir_path).replace(config.playback_methods.local.media_path, config.album_covers_path))
+        dir_path = Path(
+            str(dir_path).replace(
+                config.playback_methods.local.media_path, config.album_covers_path
+            )
+        )
     return dir_path / "cover.jpg"
 
 
@@ -555,7 +597,12 @@ def get_albums(
         if not len(artist):
             artist = str(f.artist)
         album_set.add(
-            AlbumInfo(artist, str(f.album), int(float(str(f.year))), get_cover_path(config, row_to_mediafile(f)))
+            AlbumInfo(
+                artist,
+                str(f.album),
+                int(float(str(f.year))),
+                get_cover_path(config, row_to_mediafile(f)),
+            )
         )
 
     ret: List[AlbumInfo] = list(album_set)
@@ -575,7 +622,10 @@ def get_albums(
 
     # now that we have it sorted as specified, slice if necessary to keep the
     # result count below the configured max results limit for album covers
-    if config.max_results_album_covers > 0 and len(ret) > config.max_results_album_covers:
+    if (
+        config.max_results_album_covers > 0
+        and len(ret) > config.max_results_album_covers
+    ):
         ret = ret[: config.max_results_album_covers]
 
     return ret
