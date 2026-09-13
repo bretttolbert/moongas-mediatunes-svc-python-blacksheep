@@ -70,12 +70,15 @@ Repository = "https://github.com/bretttolbert/moongas-py-mediaserver.git"
 "Bug Tracker" = "https://github.com/bretttolbert/moongas-py-mediaserver/issues"
 Changelog = "https://github.com/bretttolbert/moongas-py-mediaserver/blob/master/CHANGELOG.md"
 
+[tool.setuptools]
+py-modules = ["run"]
+
 [tool.setuptools.package-data]
 app = ['py.typed', "templates/*", "static/**/*"]
 
 [tool.setuptools.packages.find]
 where = ["src", "."]
-include = ["app*", "scripts"]
+include = ["app*", "mediaserver*", "scripts"]
 
 [tool.pytest.ini_options]
 pythonpath = [

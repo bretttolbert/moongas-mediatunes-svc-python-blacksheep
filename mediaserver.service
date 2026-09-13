@@ -3,10 +3,10 @@ Description=mediaserver
 After=network.target
 
 [Service]
-User=root
-Group=root
-WorkingDirectory=/var/www/moongas/moongas-py-mediaserver
-ExecStart=/var/www/moongas/env/bin/python run.py mediaserver-config.yml
+User=brett
+Group=brett
+WorkingDirectory=/var/www/moongas/moongas-collection-demo
+ExecStart=/var/www/moongas/moongas-collection-demo/.venv/bin/python -m mediaserver mediaserver-config.yml
 Restart=always
 RestartSec=30s
 Type=simple
