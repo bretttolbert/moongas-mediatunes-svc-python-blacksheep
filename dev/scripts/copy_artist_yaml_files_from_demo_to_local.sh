@@ -6,5 +6,4 @@ copy-medialib \
   --dst-path "$MOONGAS_COLLECTION_LOCAL/data/" \
   --include-filenames artist.yml \
   --dir-copy-mode PreserveStructure \
-  --overwrite-existing \
-  --dry-run
+  --overwrite-existing
