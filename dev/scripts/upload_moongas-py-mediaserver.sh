@@ -4,7 +4,7 @@ HOST=$MEDIASERVER_DROPLET_IP
 DEST_USER=root
 DEST_ROOT=/var/www/moongas
 SVC=moongas-py-mediaserver
-SOURCE=$SVC/
+SOURCE="$MOONGAS_COLLECTION_ROOTDIR/$SVC/"
 DEST=$DEST_USER@$HOST:$DEST_ROOT/$SVC/
 echo "Uploading $SOURCE to $DEST"
 # If first run, remove:

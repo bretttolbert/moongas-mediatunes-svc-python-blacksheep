@@ -2,5 +2,5 @@
 set -euo pipefail
 
 pushd moongas-go-mediascan > /dev/null
-go run cmd/scanartistsyaml/main.go ../mediascan-config.yml ../mediascan-artists.yml
+go run cmd/mediascan-artists-yaml/main.go "$MOONGAS_COLLECTION_ROOTDIR/mediascan-config.yml" "$MOONGAS_COLLECTION_ROOTDIR/mediascan-artists.yml"
 popd > /dev/null
