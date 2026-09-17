@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Deno / Vite / Vue client
+node_modules/
+client/node_modules/

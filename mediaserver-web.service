@@ -1,0 +1,31 @@
+[Unit]
+# Web frontend for mediaserver: plain Deno.serve server that serves the
+# Vue SPA (client/dist) and proxies /api/* and /getfile/* to the Flask
+# backend (mediaserver.service).
+#
+# Prerequisites:
+#   1. Deno installed (https://deno.com/) — set ExecStart below to the output of
+#      `which deno` on the target host (commonly ~/.deno/bin/deno or /usr/bin/deno).
+#   2. Frontend built: run `deno task build` in the repo so client/dist exists.
+Description=mediaserver-web (Deno SPA server / frontend)
+# Start after the Flask backend so the proxy target is up.
+After=network.target mediaserver.service
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/var/www/moongas/moongas-py-mediaserver
+# Environment for server/main.ts (see file header for details):
+#   PORT               listen port (default 8000)
+#   FLASK_BACKEND_URL  Flask backend base URL
+#   FLASK_URL_PREFIX   must match flaskConfig.urlPrefix in mediaserver-config.yml
+Environment=PORT=8000
+Environment=FLASK_BACKEND_URL=http://127.0.0.1:5000
+Environment=FLASK_URL_PREFIX=/mediaserver
+ExecStart=/usr/bin/deno run --allow-net --allow-read --allow-env server/main.ts
+Restart=always
+RestartSec=30s
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

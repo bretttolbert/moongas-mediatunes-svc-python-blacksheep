@@ -1,12 +1,23 @@
+"""
+Non-Jinja routes kept for the Vue SPA frontend:
+
+- /getfile/<path>  serves media files and album covers from disk
+- /api/track       returns a single random track matching the filter args
+                   (this route predates the app/api blueprint and is kept
+                   for backwards compatibility)
+
+All server-rendered Jinja page routes were removed; the SPA (client/)
+renders pages client-side using the JSON API in app/api/routes.py.
+"""
+
 import os
 import random
-from typing import List
 from pathlib import Path
+from typing import Dict, List
 
 from flask import (
     abort,
     current_app,
-    render_template,
     request,
     send_from_directory,
     Response,
@@ -16,89 +27,15 @@ from app.main import bp
 from app.types.arg_types import args_dict_to_str
 from app.utils.request_args_utils import get_request_args
 from app.utils.media_files_utils import (
-    get_files_list,
-    get_cover_path,
-    get_word_cloud_data_genres,
-    get_albums,
-    get_artist_counts,
-    get_artist_country_code_counts,
-    get_artist_region_code_counts,
-    get_artist_language_code_counts,
-    get_artist_city_counts,
-    get_artist,
-    get_genre_counts,
-    get_tracks,
-    get_word_cloud_data_artists,
     MediaFile,
+    get_cover_path,
+    get_files_list,
 )
-
-# from app.utils.app_utils import get_config, get_mediascan_files, get_mediascan_artists
 from app.utils.app_utils import (
     get_config,
     get_mediascan_db_artists,
     get_mediascan_db_files_artists_joined,
 )
-
-
-@bp.route("/")
-def root() -> str:
-    return render_template("albums_index.html", index_type="albums")
-
-
-@bp.route("/tracks")
-def tracks() -> str:
-    global files
-    config = get_config(current_app)
-    args = get_request_args(request)
-    current_app.logger.debug("tracks args=%s", args_dict_to_str(args))
-    tracks: List[MediaFile] = get_tracks(
-        current_app, get_mediascan_db_files_artists_joined(current_app), get_mediascan_db_artists(current_app), args
-    )
-    cover_path: Path = Path()
-    if len(tracks):
-        cover_path = get_cover_path(config, tracks[0])
-    return render_template(
-        "tracks.html",
-        files=tracks,
-        cover_path=str(cover_path),
-    )
-
-
-@bp.route("/tracks/index")
-def tracks_index() -> str:
-    return render_template("tracks_index.html")
-
-
-from app.types.arg_types import (
-    ArgsDict,
-)
-
-
-@bp.route("/player")
-def player() -> str:
-    config = get_config(current_app)
-    web_search_playback_methods = [m for m in config.playback_methods.webSearch if m.enabled]
-    kwargs = {}
-    args: ArgsDict = get_request_args(request)
-    for k, v in args.items():
-        kwargs[k] = v
-    return render_template(
-        "player.html",
-        playback_method_local_enabled=config.playback_methods.local.enabled,
-        web_search_playback_methods_csv=",".join(m.name for m in web_search_playback_methods),
-        web_search_query_url_formats_csv=",".join(m.search_query_url_format for m in web_search_playback_methods),
-        **kwargs
-    )
-
-
-@bp.route("/player/index")
-def player_index() -> str:
-    return render_template("player_index.html")
-
-
-@bp.route("/name-that-tune/index")
-def name_that_tune_index() -> str:
-    return render_template("player_hints_index.html")
 
 
 @bp.route("/getfile/<path:path>")
@@ -112,10 +49,6 @@ def getfile(path: str) -> Response:
     if not path.startswith("/"):
         path = "/" + path
     path_prefix = config.playback_methods.local.media_path
-    # if (
-    #    path.startswith(config.album_covers_path)
-    #    or config.album_covers_path != config.playback_methods.local.media_path
-    # ):
     if path.startswith(config.album_covers_path):
         path_prefix = config.album_covers_path
 
@@ -149,7 +82,9 @@ def getfile(path: str) -> Response:
             path_prefix,
             path_without_prefix,
         )
-        current_app.logger.debug('send_from_directory("%s", "%s")', path_prefix, path_without_prefix)
+        current_app.logger.debug(
+            'send_from_directory("%s", "%s")', path_prefix, path_without_prefix
+        )
         return send_from_directory(path_prefix, path_without_prefix)
     else:
         current_app.logger.warning(
@@ -160,156 +95,16 @@ def getfile(path: str) -> Response:
         abort(404)
 
 
-@bp.route("/genres")
-def genres() -> str:
-    sort: str = ""
-    value = request.args.get("sort")
-    if value:
-        sort = value
-    return render_template(
-        "genres.html",
-        genre_counts=get_genre_counts(get_mediascan_db_files_artists_joined(current_app), sort=sort),
-    )
-
-
-@bp.route("/genre")
-def genre() -> str:
-    return render_template(
-        "genre.html",
-    )
-
-
-@bp.route("/genres/index")
-def genres_index() -> str:
-    return render_template("genres_index.html", index_type="genres")
-
-
-@bp.route("/artists")
-def artists() -> str:
-    return render_template(
-        "artists.html",
-        artist_counts=get_artist_counts(
-            current_app,
-            get_mediascan_db_files_artists_joined(current_app),
-            get_mediascan_db_artists(current_app),
-            get_request_args(request),
-        ),
-    )
-
-
-@bp.route("/artist")
-def artist() -> str:
-    request_args = get_request_args(request)
-    artist = get_artist(
-        current_app,
-        get_mediascan_db_files_artists_joined(current_app),
-        get_mediascan_db_artists(current_app),
-        request_args,
-    )
-    if artist:
-        return render_template("artist.html", artist=artist)
-    else:
-        current_app.logger.error("Artist not found for request arguments: %s", request_args)
-        abort(404)
-
-
-@bp.route("/artist-countries")
-def artist_country_codes() -> str:
-    return render_template(
-        "artist_geo_codes.html",
-        artist_query_count_info=get_artist_country_code_counts(
-            current_app, get_mediascan_db_artists(current_app), get_request_args(request)
-        ),
-    )
-
-
-@bp.route("/artist-regions")
-def artist_region_codes() -> str:
-    return render_template(
-        "artist_geo_codes.html",
-        artist_query_count_info=get_artist_region_code_counts(
-            current_app, get_mediascan_db_artists(current_app), get_request_args(request)
-        ),
-    )
-
-
-@bp.route("/artist-cities")
-def artist_cities() -> str:
-    return render_template(
-        "artist_geo_codes.html",
-        artist_query_count_info=get_artist_city_counts(
-            current_app, get_mediascan_db_artists(current_app), get_request_args(request)
-        ),
-    )
-
-
-@bp.route("/artist-languages")
-def artist_languages() -> str:
-    return render_template(
-        "artist_geo_codes.html",
-        artist_query_count_info=get_artist_language_code_counts(
-            current_app, get_mediascan_db_artists(current_app), get_request_args(request)
-        ),
-    )
-
-
-@bp.route("/artists/index")
-def artists_index() -> str:
-    return render_template("artists_index.html", index_type="artists")
-
-
-@bp.route("/albums")
-def albums() -> str:
-    return render_template(
-        "albums.html",
-        albums=[
-            album.to_tuple()
-            for album in get_albums(
-                current_app,
-                get_mediascan_db_files_artists_joined(current_app),
-                get_mediascan_db_artists(current_app),
-                get_request_args(request),
-            )
-        ],
-    )
-
-
-@bp.route("/albums/index")
-def albums_index() -> str:
-    return render_template("albums_index.html", index_type="albums")
-
-
-@bp.route("/genres-cloud")
-def genres_cloud() -> str:
-    return render_template(
-        "word-cloud.html",
-        word_cloud_data=get_word_cloud_data_genres(get_mediascan_db_files_artists_joined(current_app)),
-        word_cloud_type="genre",
-    )
-
-
-@bp.route("/artists-cloud")
-def artists_cloud() -> str:
-    return render_template(
-        "word-cloud.html",
-        word_cloud_data=get_word_cloud_data_artists(
-            current_app,
-            get_mediascan_db_files_artists_joined(current_app),
-            get_mediascan_db_artists(current_app),
-            get_request_args(request),
-        ),
-        word_cloud_type="artist",
-    )
-
-
 @bp.route("/api/track")
-def api_track() -> dict[str, object]:
-    global files
+def api_track() -> Dict[str, object]:
     config = get_config(current_app)
     args = get_request_args(request)
     current_app.logger.debug("api/track args=%s", args_dict_to_str(args))
     files_list: List[MediaFile] = get_files_list(
-        current_app, get_mediascan_db_files_artists_joined(current_app), get_mediascan_db_artists(current_app), args
+        current_app,
+        get_mediascan_db_files_artists_joined(current_app),
+        get_mediascan_db_artists(current_app),
+        args,
     )
     if not len(files_list):
         abort(404)

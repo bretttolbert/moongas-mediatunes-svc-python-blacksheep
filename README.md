@@ -1,6 +1,6 @@
 # moongas-py-mediaserver
 
-Flask web application server for browsing and playing media library files, with advanced search filtering.
+Web application for browsing and playing media library files, with advanced search filtering. The frontend is a Vue 3 + TypeScript single-page application built with Vite and served by a plain `Deno.serve` server; the Flask backend serves a JSON API plus the media files themselves.
 
 - A component of the `moongas` ecosystem of media library tools
 
@@ -9,7 +9,6 @@ Flask web application server for browsing and playing media library files, with 
 - [moongas-py-mediascan](https://github.com/bretttolbert/moongas-py-mediascan) [![CI](https://github.com/bretttolbert/moongas-py-mediascan/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediascan/actions/workflows/ci.yml) - Python package for loading Moongas database and Yaml
 - [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) [![CI](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
 - [moongas-py-mediatest](https://github.com/bretttolbert/moongas-py-mediatest) [![CI](https://github.com/bretttolbert/moongas-py-mediatest/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediatest/actions/workflows/ci.yml) - Python tool for enforcing media collection rules (implemented with `pytest`)
-- [Flask-JSGlue](https://github.com/bretttolbert/Flask-JSGlue) [![CI](https://github.com/bretttolbert/Flask-JSGlue/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/Flask-JSGlue/actions/workflows/ci.yml) - Dependency of `moongas-py-mediaserver`
 
 Uses related projects [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) and [moongas-py-mediascan](https://github.com/bretttolbert/moongas-py-mediascan) for scanning music library files to an sqlite database and then loading the database, respectively.
 
@@ -30,6 +29,47 @@ Uses related projects [moongas-go-mediascan](https://github.com/bretttolbert/moo
 ## Screenshots
 
 [Screenshots](./doc/screenshots/README.md)
+
+## Vue + TypeScript frontend (Deno + Vite)
+
+The web UI is a single-page application built with [Deno](https://deno.com/), [Vite](https://vite.dev/), [Vue 3](https://vuejs.org/) and TypeScript:
+
+- `client/` — the Vue SPA (all TypeScript; uses npm `d3` + `d3-cloud` for the word clouds). Routes mirror the API paths (`/albums`, `/tracks`, `/artists`, `/player`, `/genres-cloud`, etc.).
+- `app/api/` — Flask JSON API blueprint consumed by the SPA (`/api/config`, `/api/albums`, `/api/tracks`, `/api/artists`, `/api/artist`, `/api/genres`, `/api/artist-geo/<kind>`, `/api/wordcloud/*`, `/api/random-track`).
+- `server/main.ts` — plain `Deno.serve` production server: serves the Vite build from `client/dist`, proxies `/api/*` and `/getfile/*` to Flask, and falls back to `index.html` for client-side routes.
+
+### Development
+
+```sh
+# 1. Start the Flask backend (serves the JSON API and media files)
+python run.py mediaserver-config.yml
+
+# 2. In another shell, start the Vite dev server (proxies /api and /getfile to Flask)
+deno task install   # first time only
+deno task dev       # http://localhost:5173
+```
+
+If your Flask config sets `flaskConfig.urlPrefix` (e.g. `/mediaserver`), export `FLASK_URL_PREFIX=/mediaserver` (and `FLASK_BACKEND_URL` if not `http://127.0.0.1:5000`) so the dev proxy rewrites correctly.
+
+### Production
+
+```sh
+deno task build     # builds client/ to client/dist
+deno task serve     # http://localhost:8000 (env: PORT, FLASK_BACKEND_URL, FLASK_URL_PREFIX)
+```
+
+### Type checking
+
+```sh
+deno task check     # runs vue-tsc on client/ and deno check on server/
+```
+
+### Runtimes
+
+- **Node 24+** runs the client toolchain: `deno task install` (dependency install), `dev`, `build`, and `check` (vue-tsc) all execute under Node. (Earlier Node/Deno combinations logged a noisy `AbortError` stack whenever the browser cancelled an in-flight proxied API request; Node 24 handles these cleanly.)
+- **Deno** runs the production web server, `server/main.ts` (`deno task serve`).
+
+
 
 ## Features
 
@@ -79,15 +119,8 @@ Uses related projects [moongas-go-mediascan](https://github.com/bretttolbert/moo
 
 - [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) A simple and fast Go (golang) command-line utility to recursively scan a directory for media files, extract metadata (including ID3v2 tags from both MP3 and M4A files), and save the output in an sqlite3 database e.g. [mediascan.db](https://github.com/bretttolbert/mediascan/blob/main/out/mediascan.db)
 - [moongas-py-mediascan] a Python library with data classes for working with the database output by `mediascan.go`
-- [Flask-JSGlue](https://github.com/bretttolbert/Flask-JSGlue) This project depends on my fork of `Flask-JSGlue`
 
 ## Installation
-
-### Install bretttolbert/Flask-JSGlue from GitHub
-- Install my fork of the `Flask-JSGlue` python package
-```bash
-pip install git+https://github.com/bretttolbert/Flask-JSGlue.git
-```
 
 ### Install bretttolbert/moongas-py-mediascan from GitHub source 
 - Install the Moongas `mediascan` python package
@@ -117,24 +150,35 @@ mediaserver mediaserver-config.yml
 
 ### Automatically start and run as a SystemD service
 
-- Customize the .service file [`mediaserver.service`](./mediaserver.service) as required
+Two systemd units are provided:
+
+- [`mediaserver.service`](./mediaserver.service) — the Flask backend (JSON API + media files)
+- [`mediaserver-web.service`](./mediaserver-web.service) — the Deno web frontend (serves the Vue SPA and proxies to the backend)
+
+To set them up:
+
+- Customize the .service files as required
 - Create a compatible Python virtual environment with the necessary dependencies
-- Active it and install mediaserver
-- Update the service file to point to your virtual environment
-- Copy the `mediaserver.service` file into the systemd system folder to install it as a systemd service
+- Activate it and install mediaserver
+- Update [`mediaserver.service`](./mediaserver.service) to point to your virtual environment
+- Build the frontend with `deno task build` (so `client/dist` exists)
+- Update [`mediaserver-web.service`](./mediaserver-web.service): set `ExecStart` to the output of `which deno` on the host, and `FLASK_BACKEND_URL` / `FLASK_URL_PREFIX` to match `mediaserver-config.yml`
+- Copy both `.service` files into the systemd system folder to install them as systemd services
 ```bash
-sudo cp mediaserver.service /etc/systemd/system/
+sudo cp mediaserver.service mediaserver-web.service /etc/systemd/system/
 cd /etc/systemd/system
-sudo chmod 644 mediaserver.service
+sudo chmod 644 mediaserver.service mediaserver-web.service
 ```
-- Enable the service with `systemctl enable`: 
+- Enable the services with `systemctl enable`: 
 ```bash
-$ sudo systemctl enable mediaserver.service
+$ sudo systemctl enable mediaserver.service mediaserver-web.service
 Created symlink /etc/systemd/system/multi-user.target.wants/mediaserver.service → /etc/systemd/system/mediaserver.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/mediaserver-web.service → /etc/systemd/system/mediaserver-web.service.
 ``
-- Start the `mediaserver` service
+- Start the services (the web unit starts after the backend via `After=`)
 ```bash
 systemctl start mediaserver.service
+systemctl start mediaserver-web.service
 ```
 - Use `systemctl status` to verify that mediaserver is running
 ```bash
@@ -159,16 +203,16 @@ Sep 07 10:25:02 pentatonic python[24056]:  * Running on http://127.0.0.1:5000
 Sep 07 10:25:02 pentatonic python[24056]:  * Running on http://192.168.0.85:5000
 Sep 07 10:25:02 pentatonic python[24056]: Press CTRL+C to quit
 ```
-- If you make changes to the `mediaserver.service` unit file, use the `systemctl daemon-reload` command to force systemd to reload it
+- If you make changes to a unit file, use the `systemctl daemon-reload` command to force systemd to reload it
 ```bash
 systemctl daemon-reload
-systemctl restart mediaserver
+systemctl restart mediaserver mediaserver-web
 ```
 - Once you have it set up to run as a service, re-scanning your library is as easy as this:
 ```bash
 cd moongas-go-mediascan
 go run cmd/scantodb/main.go mediascan-conf.yml ../mediascan.db
-sudo systemctl restart mediaserver
+sudo systemctl restart mediaserver mediaserver-web
 journalctl -b -f -u mediaserver
 ```
 - Use `-u` to specify the unit by name (`mediaserver`)
@@ -188,7 +232,6 @@ brett@pentatonic:~/Git/bretttolbert/moongas$ tree -L 1
 .
 ├── env -> env-py314
 ├── env-py314
-├── Flask-JSGlue
 ├── mediascan-artists.yml
 ├── mediascan-config.yml
 ├── mediascan.db

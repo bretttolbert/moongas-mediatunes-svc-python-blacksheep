@@ -68,5 +68,8 @@
     ],
     "python.analysis.typeCheckingMode": "strict",
     "python.analysis.importFormat": "absolute",
-    "python.terminal.useEnvFile": false
+    "python.terminal.useEnvFile": false,
+    "python.experiments.optInto": [
+        "pythonTerminalEnvVarActivation"
+    ]
 }

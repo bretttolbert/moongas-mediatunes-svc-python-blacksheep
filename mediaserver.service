@@ -1,5 +1,7 @@
 [Unit]
-Description=mediaserver
+# Flask backend: serves the JSON API (/mediaserver/api/*) and media files
+# (/mediaserver/getfile/*). The web frontend is served by mediaserver-web.service.
+Description=mediaserver (Flask JSON API backend)
 After=network.target
 
 [Service]
