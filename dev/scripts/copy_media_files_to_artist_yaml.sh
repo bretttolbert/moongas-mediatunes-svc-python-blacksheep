@@ -6,4 +6,5 @@ copy-medialib \
   --dst-path "$MOONGAS_COLLECTION_DEMO/data/" \
   --include-filenames "*.mp3" "*.m4a" \
   --dir-copy-mode PreserveStructure \
-  --make-track-yml
+  --make-track-yml \
+  "$@"
