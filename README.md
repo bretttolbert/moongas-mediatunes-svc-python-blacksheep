@@ -1,4 +1,6 @@
-# moongas-py-mediatunes-svc
+<img src="https://raw.githubusercontent.com/bretttolbert/moongas-mediatunes-web/refs/heads/main/client/public/moongas.svg" width="128" height="128">
+
+# moongas-mediatunes-web
 
 > 🚧 **Status: Work in Progress (WIP)**  
 > This project is currently under active development. Features, APIs, and documentation are subject to change.
@@ -7,7 +9,7 @@
 
 ## Overview
 
-**Python+BlackSheep API service for Moongas hybrid media collections--backend for the `moongas-mediatunes-web` application**
+**Python+BlackSheep API service for Moongas hybrid media collections—backend for the `moongas-mediatunes-web` application**
 
 ### A component of the `moongas` ecosystem of media library tools
 
@@ -70,8 +72,8 @@ The web UI single-page application (Vue 3 + TypeScript, built with Vite) has mov
 - Continuous shuffle playback with filtering options
 - Fast (tested with a library of 20,000+ music files)
 - Versatile filtering and sorting via a common set of intuitive url parameters
-- Comprehensive browsing options--browse by _artist_, _album_, _genre_, _year_, _year range_, and more
-- _Name That Tune_--plays a song without displaying the info, but offering hints, challenging the user to name the artist/tune
+- Comprehensive browsing options—browse by _artist_, _album_, _genre_, _year_, _year range_, and more
+- _Name That Tune_—plays a song without displaying the info, but offering hints, challenging the user to name the artist/tune
 - Direct download of music files via hyperlinks
 - Accessible from mobile devices (tested in Chrome on Android)
 
