@@ -20,7 +20,8 @@ def register_routes(app: Application, url_prefix: str = "") -> None:
     from app.api.routes import register_routes as register_api_routes
 
     register_main_routes(app, url_prefix)
-    register_api_routes(app, f"{url_prefix}/api")
+    # url_prefix is already the API mount point (e.g. "/api"); don't append "/api" again
+    register_api_routes(app, url_prefix)
 
 
 def create_app(config: MediatunesServiceConfig) -> Application:

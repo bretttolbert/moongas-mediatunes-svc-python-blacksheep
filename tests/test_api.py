@@ -11,6 +11,7 @@ from blacksheep.testing import TestClient
 
 from app import create_app
 from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
+from app.types.config.server_config import ServerConfig
 
 
 @pytest.fixture()
@@ -53,7 +54,9 @@ async def app(tmp_path: Path) -> Application:
     conn.close()
 
     config = MediatunesServiceConfig(
-        mediascan_database_file_path=f"sqlite:///{db_file}"
+        mediascan_database_file_path=f"sqlite:///{db_file}",
+        # serve the API at /api, matching mediatunes-config.yml
+        server_config=ServerConfig(url_prefix="/api"),
     )
     application = create_app(config)
     await application.start()
