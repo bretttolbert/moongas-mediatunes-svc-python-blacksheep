@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/bretttolbert/moongas-mediatunes-web-vue/refs/heads/main/client/public/moongas.svg" width="128" height="128">
 
-# moongas-mediatunes-srv-python-blacksheep
+# moongas-mediatunes-svc-python-blacksheep
 
 > 🚧 **Status: Work in Progress (WIP)**  
 > This project is currently under active development. Features, APIs, and documentation are subject to change.
