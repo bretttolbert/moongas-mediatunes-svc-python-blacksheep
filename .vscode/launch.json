@@ -6,7 +6,7 @@
     "configurations": [
 
         {
-            "name": "Python Debugger: Flask (run.py)",
+            "name": "Python Debugger: BlackSheep (run.py)",
             "type": "debugpy",
             "request": "launch",
             "program": "run.py",
@@ -15,7 +15,6 @@
                 "mediatunes-config.yml",
             ],
             "justMyCode": true,
-            "jinja": true,
             "autoStartBrowser": false,
         }
     ]

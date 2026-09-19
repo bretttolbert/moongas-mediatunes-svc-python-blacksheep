@@ -5,9 +5,8 @@ from typing import cast, Any, Dict, List, Set, Tuple
 from urllib.parse import quote_plus  # type: ignore
 from pathlib import Path
 import pandas as pd
-import sys
 
-from flask import Flask, url_for
+from blacksheep import Application
 
 from dataclasses import dataclass
 
@@ -50,7 +49,7 @@ from app.types.arg_types import (
 )
 from app.types.album_info import AlbumInfo
 from app.utils.string_utils import str_in_list_ignore_case
-from app.utils.app_utils import get_config
+from app.utils.app_utils import get_config, get_state
 
 NameAndUrl = Tuple[str, str]
 ArtistGeoCounts = Dict[NameAndUrl, int]
@@ -106,7 +105,7 @@ def file_and_artist_paths_match(file_path: str, artist_path: str):
     return artist_path.startswith(file_artist_path)
 
 
-def filter_files(app: Flask, files: pd.DataFrame, args: ArgsDict) -> pd.DataFrame:
+def filter_files(app: Application, files: pd.DataFrame, args: ArgsDict) -> pd.DataFrame:
     """
     Note: This is now meant to be used with joined dataframe containing both file and artist data
     """
@@ -182,7 +181,9 @@ def filter_files(app: Flask, files: pd.DataFrame, args: ArgsDict) -> pd.DataFram
     return pd.DataFrame(results)
 
 
-def filter_artists(app: Flask, artists: pd.DataFrame, args: ArgsDict) -> pd.DataFrame:
+def filter_artists(
+    app: Application, artists: pd.DataFrame, args: ArgsDict
+) -> pd.DataFrame:
     app.logger.info("filter_artists args=%s", args_dict_to_str(args))
     results: List[Any] = []
     for row in artists.itertuples():
@@ -228,7 +229,7 @@ def filter_artists(app: Flask, artists: pd.DataFrame, args: ArgsDict) -> pd.Data
 
 
 def get_files_list(
-    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+    app: Application, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
 ) -> List[MediaFile]:
     files_list = filter_files(app, files, args)
     return df_to_mediafile_list(files_list)
@@ -255,7 +256,7 @@ def get_genre_counts(files: pd.DataFrame, sort: str) -> Dict[str, int]:
 
 
 def get_tracks(
-    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+    app: Application, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
 ) -> List[MediaFile]:
     df = filter_files(app, files, args)
 
@@ -288,7 +289,7 @@ def get_tracks(
 
 
 def get_artist_counts(
-    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+    app: Application, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
 ) -> Dict[str, int]:
     """
     TODO: I want this function to get track counts from files but filter based on countryCode etc.
@@ -323,10 +324,8 @@ def get_artist_counts(
     return ret
 
 
-def get_static_json_data(app: Flask, filename: str) -> Dict[str, Any]:
-    if app.static_folder is None:
-        sys.exit(1)
-    full_path = os.path.join(app.static_folder, "json_data", filename)
+def get_static_json_data(app: Application, filename: str) -> Dict[str, Any]:
+    full_path = os.path.join(get_state(app).static_folder, "json_data", filename)
     try:
         with open(full_path, "r") as json_file:
             data = json.load(json_file)
@@ -339,15 +338,15 @@ def get_static_json_data(app: Flask, filename: str) -> Dict[str, Any]:
     return {}
 
 
-def get_country_code_name_map(app: Flask) -> Dict[str, str]:
+def get_country_code_name_map(app: Application) -> Dict[str, str]:
     return get_static_json_data(app, "country_code_name_map.json")
 
 
-def get_region_code_name_map(app: Flask) -> Dict[str, str]:
+def get_region_code_name_map(app: Application) -> Dict[str, str]:
     return get_static_json_data(app, "region_code_name_map.json")
 
 
-def get_language_code_name_map(app: Flask) -> Dict[str, str]:
+def get_language_code_name_map(app: Application) -> Dict[str, str]:
     return get_static_json_data(app, "language_code_name_map.json")
 
 
@@ -377,7 +376,7 @@ class ArtistQueryCountInfo:
 
 
 def get_artist_country_code_counts(
-    app: Flask, artists: pd.DataFrame, args: ArgsDict
+    app: Application, artists: pd.DataFrame, args: ArgsDict
 ) -> List[ArtistQueryCountInfo]:
     code_name_map = get_country_code_name_map(app)
 
@@ -390,7 +389,7 @@ def get_artist_country_code_counts(
             )
         else:
             value = code_name_map[code]
-            url = url_for("main.artists", sort="count", countryCode=code)
+            url = f"/artists?sort=count&countryCode={quote_plus(code)}"
             uniq_key = (value, url)
             if uniq_key in counts:
                 counts[uniq_key] += 1
@@ -408,7 +407,7 @@ def get_artist_country_code_counts(
 
 
 def get_artist_region_code_counts(
-    app: Flask, artists: pd.DataFrame, args: ArgsDict
+    app: Application, artists: pd.DataFrame, args: ArgsDict
 ) -> List[ArtistQueryCountInfo]:
     code_name_map = get_region_code_name_map(app)
 
@@ -421,7 +420,7 @@ def get_artist_region_code_counts(
             )
         else:
             value = code_name_map[code]
-            url = url_for("main.artists", sort="count", regionCode=code)
+            url = f"/artists?sort=count&regionCode={quote_plus(code)}"
             uniq_key = (value, url)
             if uniq_key in counts:
                 counts[uniq_key] += 1
@@ -439,7 +438,7 @@ def get_artist_region_code_counts(
 
 
 def get_artist_language_code_counts(
-    app: Flask, artists: pd.DataFrame, args: ArgsDict
+    app: Application, artists: pd.DataFrame, args: ArgsDict
 ) -> List[ArtistQueryCountInfo]:
     code_name_map = get_language_code_name_map(app)
 
@@ -452,7 +451,7 @@ def get_artist_language_code_counts(
             )
         else:
             value = code_name_map[code]
-            url = url_for("main.artists", sort="count", languageCode=code)
+            url = f"/artists?sort=count&languageCode={quote_plus(code)}"
             uniq_key = (value, url)
             if uniq_key in counts:
                 counts[uniq_key] += 1
@@ -470,7 +469,7 @@ def get_artist_language_code_counts(
 
 
 def get_artist_city_counts(
-    app: Flask, artists: pd.DataFrame, args: ArgsDict
+    app: Application, artists: pd.DataFrame, args: ArgsDict
 ) -> List[ArtistQueryCountInfo]:
     country_code_name_map = get_country_code_name_map(app)
     region_code_name_map = get_region_code_name_map(app)
@@ -491,8 +490,9 @@ def get_artist_city_counts(
         if len(city_qualifiers):
             city_uniq = f"{city_uniq} ({', '.join(city_qualifiers)})"
         value = city_uniq
-        url = url_for(
-            "main.artists", sort="count", city=city, regionCode=rc, countryCode=cc
+        url = (
+            f"/artists?sort=count&city={quote_plus(city)}"
+            f"&regionCode={quote_plus(rc)}&countryCode={quote_plus(cc)}"
         )
         uniq_key = (value, url)
         if uniq_key in counts:
@@ -511,7 +511,7 @@ def get_artist_city_counts(
 
 
 def get_artists(
-    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+    app: Application, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
 ) -> List[str]:
     """
     This is currently only used by the word cloud
@@ -536,7 +536,7 @@ def get_artists(
 
 
 def get_artist(
-    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+    app: Application, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
 ) -> tuple[Any, ...] | None:
     """
     Similar to get_artists but only gets a single artists and displays links (album, tracks, shuffle)
@@ -556,7 +556,7 @@ def get_word_cloud_data_genres(files: pd.DataFrame) -> List[Dict[str, str]]:
 
 
 def get_word_cloud_data_artists(
-    app: Flask, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
+    app: Application, files: pd.DataFrame, artists: pd.DataFrame, args: ArgsDict
 ) -> List[Dict[str, str]]:
     ret: List[Dict[str, str]] = []
     artists_filtered = get_artists(app, files, artists, args)
@@ -580,7 +580,7 @@ def get_cover_path(config: MediatunesServiceConfig, file: MediaFile) -> Path:
 
 
 def get_albums(
-    app: Flask,
+    app: Application,
     files: pd.DataFrame,
     artists: pd.DataFrame,
     args: ArgsDict,

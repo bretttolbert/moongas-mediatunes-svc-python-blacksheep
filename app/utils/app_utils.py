@@ -1,28 +1,42 @@
-from typing import cast
-from flask import current_app, Flask
-
-import sqlalchemy as sa
+import logging
+from dataclasses import dataclass
 
 import pandas as pd
+import sqlalchemy as sa
+from blacksheep import Application
 
 from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
 
 
-def get_config(app: Flask) -> MediatunesServiceConfig:
-    return cast(MediatunesServiceConfig, current_app.config["MEDIATUNES_SVC_CONFIG"])
+@dataclass
+class AppState:
+    """Application-scoped state, registered in the BlackSheep services container."""
+
+    config: MediatunesServiceConfig
+    engine: sa.Engine
+    db_files: pd.DataFrame
+    db_artists: pd.DataFrame
+    db_files_artists_joined: pd.DataFrame
+    static_folder: str
+    logger: logging.Logger
 
 
-def get_mediascan_db_connection(app: Flask) -> sa.Connection:
-    return cast(sa.Connection, current_app.config["MEDIASCAN_DB_CONN"])
+def get_state(app: Application) -> AppState:
+    # rodi stub gap: ContainerProtocol.resolve's type is partially unknown
+    return app.services.resolve(AppState)  # pyright: ignore[reportUnknownMemberType]
 
 
-def get_mediascan_db_files(app: Flask) -> pd.DataFrame:
-    return cast(pd.DataFrame, current_app.config["MEDIASCAN_DB_FILES"])
+def get_config(app: Application) -> MediatunesServiceConfig:
+    return get_state(app).config
 
 
-def get_mediascan_db_artists(app: Flask) -> pd.DataFrame:
-    return cast(pd.DataFrame, current_app.config["MEDIASCAN_DB_ARTISTS"])
+def get_mediascan_db_files(app: Application) -> pd.DataFrame:
+    return get_state(app).db_files
 
 
-def get_mediascan_db_files_artists_joined(app: Flask) -> pd.DataFrame:
-    return cast(pd.DataFrame, current_app.config["MEDIASCAN_DB_FILES_ARTISTS_JOINED"])
+def get_mediascan_db_artists(app: Application) -> pd.DataFrame:
+    return get_state(app).db_artists
+
+
+def get_mediascan_db_files_artists_joined(app: Application) -> pd.DataFrame:
+    return get_state(app).db_files_artists_joined

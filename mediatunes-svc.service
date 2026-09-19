@@ -1,8 +1,8 @@
 [Unit]
-# Flask backend: serves the JSON API (/mediatunes-service/api/*) and media files
+# BlackSheep backend: serves the JSON API (/mediatunes-service/api/*) and media files
 # (/mediatunes-service/getfile/*). The web frontend single-page application lives
 # in a separate repo.
-Description=mediatunes-service (Flask JSON API backend)
+Description=mediatunes-service (BlackSheep JSON API backend)
 After=network.target
 
 [Service]

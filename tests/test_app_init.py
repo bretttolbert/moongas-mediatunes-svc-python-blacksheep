@@ -1,10 +1,12 @@
 from pathlib import Path
 import sqlite3
-from typing import cast
-import pandas as pd
+
 import pytest
+from blacksheep import Application
+
 from app import create_app
 from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
+from app.utils.app_utils import get_mediascan_db_artists, get_mediascan_db_files
 
 
 def test_create_app_missing_database_file(tmp_path: Path):
@@ -58,8 +60,8 @@ def test_create_app_valid_database(tmp_path: Path):
         mediascan_database_file_path=f"sqlite:///{db_file}"
     )
     app = create_app(config)
-    assert app is not None
-    files_df = cast(pd.DataFrame, app.config["MEDIASCAN_DB_FILES"])
-    artists_df = cast(pd.DataFrame, app.config["MEDIASCAN_DB_ARTISTS"])
+    assert isinstance(app, Application)
+    files_df = get_mediascan_db_files(app)
+    artists_df = get_mediascan_db_artists(app)
     assert len(files_df) == 1
     assert len(artists_df) == 1

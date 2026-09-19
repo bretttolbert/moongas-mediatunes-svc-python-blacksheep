@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from dataclass_wizard.v0 import YAMLWizard
 
 from app.types.config.playback_methods_config import PlaybackMethodsConfig
-from app.types.config.flask_config import FlaskConfig
+from app.types.config.server_config import ServerConfig
 
 
 @dataclass
@@ -14,7 +14,7 @@ class MediatunesServiceConfig(YAMLWizard):
     limit_bandwidth: bool = field(default=True)
     max_results: int = field(default=50000)
     max_results_album_covers: int = field(default=500)
-    flask_config: FlaskConfig = field(default_factory=FlaskConfig)
+    server_config: ServerConfig = field(default_factory=ServerConfig)
     playback_methods: PlaybackMethodsConfig = field(
         default_factory=PlaybackMethodsConfig
     )

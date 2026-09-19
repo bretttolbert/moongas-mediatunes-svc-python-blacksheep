@@ -1,6 +1,10 @@
 import logging
+import os
 import sys
 from pathlib import Path
+
+import uvicorn
+from blacksheep import Application
 
 from app import create_app
 from app.utils.config.mediatunes_svc_config_util import MediatunesServiceConfigUtil
@@ -11,6 +15,17 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("mediatunes_svc")
+
+
+def create_app_from_env() -> Application:
+    """Application factory used by uvicorn when running with reload enabled.
+
+    Reads the config file path from the MEDIATUNES_CONFIG environment variable.
+    """
+    config_filepath_str = os.environ.get("MEDIATUNES_CONFIG")
+    config_filepath = Path(config_filepath_str) if config_filepath_str else None
+    config = MediatunesServiceConfigUtil().load_config(config_filepath)
+    return create_app(config)
 
 
 def main():
@@ -27,7 +42,7 @@ def main():
         logger.error("Failed to load configuration from '%s': %s", config_filepath, ex)
         sys.exit(1)
 
-    if config.flask_config.debug:
+    if config.server_config.debug:
         logging.getLogger().setLevel(logging.DEBUG)
         logger.setLevel(logging.DEBUG)
 
@@ -44,14 +59,31 @@ def main():
     else:
         app.logger.info("Loaded configuration from file: %s", config_filepath)
 
+    server_config = config.server_config
+    log_level = "debug" if server_config.debug else "info"
+
     try:
-        app.run(
-            debug=config.flask_config.debug,
-            use_debugger=config.flask_config.use_debugger,
-            use_reloader=config.flask_config.use_reloader,
-            host=config.flask_config.host,
-            port=config.flask_config.port,
-        )
+        if server_config.use_reloader:
+            # uvicorn's reloader requires an import string (a new process
+            # re-imports the module), so the config file path is passed to the
+            # child process via the MEDIATUNES_CONFIG environment variable.
+            if config_filepath is not None:
+                os.environ["MEDIATUNES_CONFIG"] = str(config_filepath)
+            uvicorn.run(
+                "run:create_app_from_env",
+                factory=True,
+                reload=True,
+                host=server_config.host,
+                port=server_config.port,
+                log_level=log_level,
+            )
+        else:
+            uvicorn.run(
+                app,
+                host=server_config.host,
+                port=server_config.port,
+                log_level=log_level,
+            )
     except Exception as ex:
         logger.error("Error while running mediatunes-service: %s", ex)
         sys.exit(1)

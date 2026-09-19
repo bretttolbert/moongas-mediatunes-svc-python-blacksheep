@@ -134,7 +134,7 @@ mediatunes-service mediatunes-config.yml
 
 A systemd unit is provided:
 
-- [`mediatunes-service.service`](./mediatunes-service.service) — the Flask backend (JSON API + media files)
+- [`mediatunes-svc.service`](./mediatunes-svc.service) — the BlackSheep backend (JSON API + media files)
 
 To set it up:
 
@@ -172,13 +172,10 @@ $ systemctl status mediatunes-service
 
 Sep 07 10:25:00 pentatonic systemd[1]: Started mediatunes-service.service - mediatunes-service.
 Sep 07 10:25:02 pentatonic python[24056]: Loading configuration from file ../mediatunes-config.yml
-Sep 07 10:25:02 pentatonic python[24056]:  * Serving Flask app 'app'
-Sep 07 10:25:02 pentatonic python[24056]:  * Debug mode: on
-Sep 07 10:25:02 pentatonic python[24056]: WARNING: This is a development server. Do not use it in a production deployment. Use a produc>
-Sep 07 10:25:02 pentatonic python[24056]:  * Running on all addresses (0.0.0.0)
-Sep 07 10:25:02 pentatonic python[24056]:  * Running on http://127.0.0.1:5000
-Sep 07 10:25:02 pentatonic python[24056]:  * Running on http://192.168.0.85:5000
-Sep 07 10:25:02 pentatonic python[24056]: Press CTRL+C to quit
+Sep 07 10:25:02 pentatonic python[24056]: INFO:     Started server process [24056]
+Sep 07 10:25:02 pentatonic python[24056]: INFO:     Waiting for application startup.
+Sep 07 10:25:02 pentatonic python[24056]: INFO:     Application startup complete.
+Sep 07 10:25:02 pentatonic python[24056]: INFO:     Uvicorn running on http://0.0.0.0:5000 (Press CTRL+C to quit)
 ```
 - If you make changes to a unit file, use the `systemctl daemon-reload` command to force systemd to reload it
 ```bash

@@ -38,6 +38,8 @@
         "**/build": true,
         "**/dist": true
     },
+    "explorer.excludeGitIgnore": false,
+    "search.useIgnoreFiles": false,
     "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
     "python.terminal.activateEnvInCurrentTerminal": true,
     "python.terminal.activateEnvironment": true,

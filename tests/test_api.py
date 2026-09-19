@@ -1,15 +1,20 @@
+# pyright: reportUnknownMemberType=false
+# ^ blacksheep.testing.TestClient stub types (e.g. ClientSession.get) contain Unknown,
+#   which strict mode flags at every call site; suppressed file-wide for tests.
+
 from pathlib import Path
 import sqlite3
 
 import pytest
-from flask import Flask
+from blacksheep import Application
+from blacksheep.testing import TestClient
 
 from app import create_app
 from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
 
 
 @pytest.fixture()
-def app(tmp_path: Path) -> Flask:
+async def app(tmp_path: Path) -> Application:
     db_file = tmp_path / "api_test.db"
     conn = sqlite3.connect(db_file)
     conn.execute("""
@@ -50,118 +55,120 @@ def app(tmp_path: Path) -> Flask:
     config = MediatunesServiceConfig(
         mediascan_database_file_path=f"sqlite:///{db_file}"
     )
-    return create_app(config)
+    application = create_app(config)
+    await application.start()
+    return application
 
 
-def test_api_config(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/config")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_config(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/config")
+    assert resp.status == 200
+    data = await resp.json()
     assert "playbackMethodLocalEnabled" in data
     assert "webSearchPlaybackMethods" in data
     assert "presentYear" in data
 
 
-def test_api_tracks(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/tracks")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_tracks(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/tracks")
+    assert resp.status == 200
+    data = await resp.json()
     assert len(data["files"]) == 1
     assert data["files"][0]["title"] == "Track 1"
     assert data["files"][0]["genre"] == "Rock"
 
 
-def test_api_tracks_filtered(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/tracks?genre=Jazz")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_tracks_filtered(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/tracks?genre=Jazz")
+    assert resp.status == 200
+    data = await resp.json()
     assert len(data["files"]) == 0
 
 
-def test_api_albums(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/albums")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_albums(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/albums")
+    assert resp.status == 200
+    data = await resp.json()
     assert len(data["albums"]) == 1
     assert data["albums"][0]["album"] == "Album"
     assert data["albums"][0]["year"] == 2000
 
 
-def test_api_artists(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/artists")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_artists(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/artists")
+    assert resp.status == 200
+    data = await resp.json()
     assert data["artists"] == [{"name": "Artist One", "count": 1}]
 
 
-def test_api_artist(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/artist?artist=Artist One")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_artist(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/artist?artist=Artist One")
+    assert resp.status == 200
+    data = await resp.json()
     assert data["artist"]["name"] == "Artist One"
     assert data["artist"]["countryCode"] == "US"
 
 
-def test_api_artist_not_found(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/artist?artist=Nobody")
-    assert resp.status_code == 404
+async def test_api_artist_not_found(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/artist?artist=Nobody")
+    assert resp.status == 404
 
 
-def test_api_genres(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/genres")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_genres(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/genres")
+    assert resp.status == 200
+    data = await resp.json()
     assert data["genres"] == [{"genre": "Rock", "count": 1}]
 
 
-def test_api_artist_geo(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/artist-geo/countries")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_artist_geo(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/artist-geo/countries")
+    assert resp.status == 200
+    data = await resp.json()
     assert len(data["items"]) == 1
     assert data["items"][0]["name"] == "Country"
     assert data["items"][0]["value"] == "United States"
     assert data["items"][0]["criteria"] == {"countryCode": "US"}
     assert data["items"][0]["count"] == 1
 
-    resp = client.get("/api/artist-geo/cities")
-    assert resp.status_code == 200
-    data = resp.get_json()
+    resp = await client.get("/api/artist-geo/cities")
+    assert resp.status == 200
+    data = await resp.json()
     assert data["items"][0]["value"] == "Huntsville (Alabama, United States)"
     assert data["items"][0]["criteria"]["city"] == "Huntsville"
 
-    resp = client.get("/api/artist-geo/bogus")
-    assert resp.status_code == 404
+    resp = await client.get("/api/artist-geo/bogus")
+    assert resp.status == 404
 
 
-def test_api_wordcloud(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/wordcloud/genres")
-    assert resp.status_code == 200
-    assert resp.get_json()["words"] == [{"text": "Rock"}]
+async def test_api_wordcloud(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/wordcloud/genres")
+    assert resp.status == 200
+    assert (await resp.json())["words"] == [{"text": "Rock"}]
 
-    resp = client.get("/api/wordcloud/artists")
-    assert resp.status_code == 200
-    assert resp.get_json()["words"] == [{"text": "Artist One"}]
+    resp = await client.get("/api/wordcloud/artists")
+    assert resp.status == 200
+    assert (await resp.json())["words"] == [{"text": "Artist One"}]
 
 
-def test_api_random_track(app: Flask):
-    client = app.test_client()
-    resp = client.get("/api/random-track")
-    assert resp.status_code == 200
-    data = resp.get_json()
+async def test_api_random_track(app: Application):
+    client = TestClient(app)
+    resp = await client.get("/api/random-track")
+    assert resp.status == 200
+    data = await resp.json()
     assert data["title"] == "Track 1"
     assert data["artist"] == "Artist One"
     assert "coverPath" in data
 
-    resp = client.get("/api/random-track?genre=Jazz")
-    assert resp.status_code == 404
+    resp = await client.get("/api/random-track?genre=Jazz")
+    assert resp.status == 404

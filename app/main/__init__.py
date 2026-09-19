@@ -1,5 +1,1 @@
-from flask import Blueprint
-
-bp = Blueprint("main", __name__)
-
-from app.main import routes # type: ignore
+"""Main routes package (backwards-compatible non-API routes)."""

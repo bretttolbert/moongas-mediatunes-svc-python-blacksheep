@@ -1,4 +1,4 @@
-from flask import Request
+from blacksheep import Request
 
 from typing import List
 
@@ -35,19 +35,18 @@ def get_request_args(
     ret: ArgsDict = {}
     for arg_type in arg_types:
         if ArgTypeUtil.is_scalar(arg_type):
-            value = request.args.get(str(arg_type))
-            if value:
+            values = request.query.get(str(arg_type))
+            if values:
+                value = values[0]
                 if ArgTypeUtil.is_integer(arg_type):
                     ret[arg_type] = int(value)
                 else:
                     # must be enum type, and there's only one currently
                     ret[arg_type] = ArgValues.Scalar.Enum.Sort(value)
         else:
-            value = request.args.getlist(str(arg_type))
-            if value:
-                ret[arg_type] = value
-            else:
-                value = request.args.getlist(f"{arg_type}[]")
-                if value:
-                    ret[arg_type] = value
+            values = request.query.get(str(arg_type))
+            if not values:
+                values = request.query.get(f"{arg_type}[]")
+            if values:
+                ret[arg_type] = values
     return ret

@@ -1,40 +1,35 @@
-from typing import Optional
+from typing import cast
 import logging
 import os
 from pathlib import Path
-from flask import Flask
+
 import pandas as pd
+from blacksheep import Application
+from rodi import Container
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
+from app.utils.app_utils import AppState
 
 logger = logging.getLogger(__name__)
 
 
-def register_blueprint(
-    app: Flask, config: MediatunesServiceConfig, url_prefix: Optional[str] = None
-):
-    from app.main import bp
-    from app.api import bp as api_bp
+def register_routes(app: Application, url_prefix: str = "") -> None:
+    from app.main.routes import register_routes as register_main_routes
+    from app.api.routes import register_routes as register_api_routes
 
-    if url_prefix is None:
-        app.register_blueprint(bp)
-        app.register_blueprint(api_bp, url_prefix="/api")
-    else:
-        app.register_blueprint(bp, url_prefix=url_prefix)
-        app.register_blueprint(api_bp, url_prefix=f"{url_prefix}/api")
+    register_main_routes(app, url_prefix)
+    register_api_routes(app, f"{url_prefix}/api")
 
 
-def create_app(config: MediatunesServiceConfig) -> Flask:
-    root_path = config.flask_config.root_path
-    url_prefix = config.flask_config.url_prefix
-    static_url_path = config.flask_config.static_url_path
-    app = Flask(__name__, root_path=root_path, static_url_path=static_url_path)
-    app.logger.debug("flask_config.root_path: %s", root_path)
-    app.logger.debug("flask_config.url_prefix: %s", url_prefix)
-    app.logger.debug("flask_config.static_url_path: %s", static_url_path)
-    app.config["MEDIATUNES_SVC_CONFIG"] = config
+def create_app(config: MediatunesServiceConfig) -> Application:
+    server_config = config.server_config
+    url_prefix = server_config.url_prefix or ""
+    static_url_path = server_config.static_url_path
+    app = Application(show_error_details=server_config.debug)
+    app.logger.debug("server_config.url_prefix: %s", url_prefix)
+    app.logger.debug("server_config.static_url_path: %s", static_url_path)
 
     db_path = config.mediascan_database_file_path
     if not db_path:
@@ -75,7 +70,6 @@ def create_app(config: MediatunesServiceConfig) -> Flask:
 
     try:
         engine = create_engine(db_path)
-        app.config["ENGINE"] = engine
     except Exception as ex:
         app.logger.error("Failed to create SQLAlchemy engine for '%s': %s", db_path, ex)
         raise
@@ -103,21 +97,17 @@ def create_app(config: MediatunesServiceConfig) -> Flask:
 
     try:
         with engine.connect() as conn:
-            app.config["MEDIASCAN_DB_CONN"] = conn
             app.logger.info("Loading 'mediafile' table from database...")
             files_df = pd.read_sql_query("SELECT * FROM mediafile", conn)
-            app.config["MEDIASCAN_DB_FILES"] = files_df
 
             app.logger.info("Loading 'artist' table from database...")
             artists_df = pd.read_sql_query("SELECT * FROM artist", conn)
-            app.config["MEDIASCAN_DB_ARTISTS"] = artists_df
 
             app.logger.info("Joining media files and artists...")
             joined_df = pd.read_sql_query(
                 "SELECT * FROM mediafile LEFT JOIN artist ON mediafile.artistpath = artist.path",
                 conn,
             )
-            app.config["MEDIASCAN_DB_FILES_ARTISTS_JOINED"] = joined_df
 
             app.logger.info(
                 "Successfully loaded %d media files and %d artists from database.",
@@ -137,6 +127,24 @@ def create_app(config: MediatunesServiceConfig) -> Flask:
         )
         raise
 
-    app.debug = config.flask_config.debug
-    register_blueprint(app, config, url_prefix)
+    static_folder = str(Path(__file__).parent / "static")
+    # Application.services is typed as ContainerProtocol, whose stub lacks add_instance
+    services = cast(Container, app.services)
+    services.add_instance(  # pyright: ignore[reportUnknownMemberType] - rodi stub gap
+        AppState(
+            config=config,
+            engine=engine,
+            db_files=files_df,
+            db_artists=artists_df,
+            db_files_artists_joined=joined_df,
+            static_folder=static_folder,
+            logger=app.logger,
+        )
+    )
+
+    register_routes(app, url_prefix)
+
+    if static_url_path:
+        app.serve_files(static_folder, root_path=static_url_path)
+
     return app
