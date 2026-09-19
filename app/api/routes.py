@@ -122,7 +122,9 @@ def _artist_geo_counts(app: Application, kind: str) -> List[Dict[str, Any]]:
     ]
 
 
-def register_routes(app: Application, url_prefix: str = "/api") -> None:
+def register_routes(app: Application, url_prefix: str = "") -> None:
+    # url_prefix is used verbatim (from serverConfig.urlPrefix); to serve the
+    # API under /api, set urlPrefix: /api in the config — it is NOT appended here.
     @app.router.get(url_prefix + "/config")
     async def api_config() -> Response:
         """Client-facing configuration (playback methods, limits, feature flags)."""

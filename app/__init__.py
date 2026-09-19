@@ -19,8 +19,9 @@ def register_routes(app: Application, url_prefix: str = "") -> None:
     from app.main.routes import register_routes as register_main_routes
     from app.api.routes import register_routes as register_api_routes
 
-    register_main_routes(app, url_prefix)
-    # url_prefix is already the API mount point (e.g. "/api"); don't append "/api" again
+    # media files (/getfile/<path>) are served from the root, not under url_prefix
+    register_main_routes(app, "")
+    # the JSON API lives under the configured url_prefix (e.g. "/api")
     register_api_routes(app, url_prefix)
 
 
