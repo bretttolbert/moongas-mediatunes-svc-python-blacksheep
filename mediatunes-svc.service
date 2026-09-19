@@ -1,8 +1,8 @@
 [Unit]
-# BlackSheep backend: serves the JSON API (/mediatunes-service/api/*) and media files
-# (/mediatunes-service/getfile/*). The web frontend single-page application lives
+# BlackSheep backend: serves the JSON API (/mediatunes/api/*) and media files
+# (/mediatunes/getfile/*). The web frontend single-page application lives
 # in a separate repo.
-Description=mediatunes-service (BlackSheep JSON API backend)
+Description=mediatunes-svc (BlackSheep JSON API backend)
 After=network.target
 
 [Service]

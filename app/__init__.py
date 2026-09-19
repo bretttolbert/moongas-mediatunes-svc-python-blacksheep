@@ -34,7 +34,7 @@ def create_app(config: MediatunesServiceConfig) -> Application:
     db_path = config.mediascan_database_file_path
     if not db_path:
         error_msg = (
-            "No mediascan database file path configured in mediatunes-service config."
+            "No mediascan database file path configured in mediatunes-svc config."
         )
         app.logger.error(error_msg)
         raise ValueError(error_msg)
@@ -61,7 +61,7 @@ def create_app(config: MediatunesServiceConfig) -> Application:
             if resolved_sqlite_path.stat().st_size == 0:
                 error_msg = (
                     f"SQLite database file at '{resolved_sqlite_path}' is empty (0 bytes). "
-                    "Please populate the database using mediascan before running mediatunes-service."
+                    "Please populate the database using mediascan before running mediatunes-svc."
                 )
                 app.logger.error(error_msg)
                 raise ValueError(error_msg)

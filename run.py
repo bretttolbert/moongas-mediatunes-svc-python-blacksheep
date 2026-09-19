@@ -49,7 +49,7 @@ def main():
     try:
         app = create_app(config)
     except Exception as ex:
-        logger.error("Failed to initialize mediatunes-service application: %s", ex)
+        logger.error("Failed to initialize mediatunes-svc application: %s", ex)
         sys.exit(1)
 
     if config_filepath is None:
@@ -85,7 +85,7 @@ def main():
                 log_level=log_level,
             )
     except Exception as ex:
-        logger.error("Error while running mediatunes-service: %s", ex)
+        logger.error("Error while running mediatunes-svc: %s", ex)
         sys.exit(1)
 
 

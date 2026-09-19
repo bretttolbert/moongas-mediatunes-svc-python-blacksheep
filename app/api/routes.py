@@ -1,5 +1,5 @@
 """
-JSON API routes consumed by the mediatunes-service web frontend.
+JSON API routes consumed by the mediatunes-svc web frontend.
 
 The frontend single-page application lives in a separate repo; these
 endpoints expose the media library data as JSON so it can render pages

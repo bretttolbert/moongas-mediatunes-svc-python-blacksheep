@@ -18,6 +18,12 @@
 - [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) [![CI](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-go-mediascan/actions/workflows/ci.yml) - Golang module to scan media collections and Moongas Yaml metatadata, outputs Moongas database
 - [moongas-py-mediatest](https://github.com/bretttolbert/moongas-py-mediatest) [![CI](https://github.com/bretttolbert/moongas-py-mediatest/actions/workflows/ci.yml/badge.svg)](https://github.com/bretttolbert/moongas-py-mediatest/actions/workflows/ci.yml) - Python tool for enforcing media collection rules (implemented with `pytest`)
 
+# Run
+
+```sh
+python run.py mediatunes-config.yml
+```
+
 ## Dependencies
 
 - [moongas-go-mediascan](https://github.com/bretttolbert/moongas-go-mediascan) - used for: scanning music library files into a Moongas sqlite3 database
@@ -29,15 +35,15 @@
 
 ### Filter by year range
 
-[bretttolbert.com/mediatunes-service/albums?minYear=1990&maxYear=2004](https://bretttolbert.com/mediatunes-service/albums?minYear=1990&maxYear=2004)
+[bretttolbert.com/mediatunes-svc/albums?minYear=1990&maxYear=2004](https://bretttolbert.com/mediatunes-svc/albums?minYear=1990&maxYear=2004)
 
 ### Filter by year range and genre(s)
 
-[bretttolbert.com/mediatunes-service/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français](https://bretttolbert.com/mediatunes-service/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français)
+[bretttolbert.com/mediatunes-svc/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français](https://bretttolbert.com/mediatunes-svc/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français)
 
 ### Filter by artist, album and title
 
-[bretttolbert.com/mediatunes-service/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric](https://bretttolbert.com/mediatunes-service/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric)
+[bretttolbert.com/mediatunes-svc/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric](https://bretttolbert.com/mediatunes-svc/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric)
 
 ## Screenshots
 
@@ -47,11 +53,6 @@
 
 The web UI single-page application (Vue 3 + TypeScript, built with Vite) has moved to a separate repo. It consumes this backend's JSON API (`app/api/` — `/api/config`, `/api/albums`, `/api/tracks`, `/api/artists`, `/api/artist`, `/api/genres`, `/api/artist-geo/<kind>`, `/api/wordcloud/*`, `/api/random-track`) and the media files via `/getfile/*`.
 
-### Running the backend
-
-```sh
-python run.py mediatunes-config.yml
-```
 
 ## Features
 
@@ -62,7 +63,7 @@ python run.py mediatunes-config.yml
     2. "Play" by opening YouTube search for _"(artist) (album) (title) video"_ (configurable)
         - Great for finding music videos of your favorite music
         - Great for creating YouTube playlists of music videos meeting certain filter criteria (e.g. 80s New Wave music videos for your 80s party)
-        - IMHO mediatunes-service + YouTube premium (no ads) is better than YouTube Music or Spotify
+        - IMHO mediatunes-svc + YouTube premium (no ads) is better than YouTube Music or Spotify
     3. (Default) Display both options
 - Album art displayed at a beautiful `1000x1000px` resolution
     - (bandwidth optimized by converting to `.webp` at 80% quality if hosted by yours truly)
@@ -116,18 +117,18 @@ cd moongas-go-mediascan
 go run cmd/scantodb/main.go mediascan-config.yml ../mediascan.db
 ```
 
-### Install bretttolbert/moongas-py-mediatunes-service from GitHub source 
+### Install bretttolbert/moongas-py-mediatunes-svc from GitHub source 
 - Clone the repo
 ```bash
-git clone git@github.com:bretttolbert/moongas-py-mediatunes-service.git
-cd moongas-py-mediatunes-service
+git clone git@github.com:bretttolbert/moongas-py-mediatunes-svc.git
+cd moongas-py-mediatunes-svc
 python -m pip install .
 ```
 - Configure `mediaPath`, etc. in the [`mediatunes-config.yml`](./mediatunes-config.yml)
-- Run mediatunes-service
+- Run mediatunes-svc
 ```bash
-cd moongas-py-mediatunes-service
-mediatunes-service mediatunes-config.yml
+cd moongas-py-mediatunes-svc
+mediatunes-svc mediatunes-config.yml
 ```
 
 ### Automatically start and run as a SystemD service
@@ -140,37 +141,37 @@ To set it up:
 
 - Customize the .service file as required
 - Create a compatible Python virtual environment with the necessary dependencies
-- Activate it and install mediatunes-service
-- Update [`mediatunes-service.service`](./mediatunes-service.service) to point to your virtual environment
+- Activate it and install mediatunes-svc
+- Update [`mediatunes-svc.service`](./mediatunes-svc.service) to point to your virtual environment
 - Copy the `.service` file into the systemd system folder to install it as a systemd service
 ```bash
-sudo cp mediatunes-service.service /etc/systemd/system/
+sudo cp mediatunes-svc.service /etc/systemd/system/
 cd /etc/systemd/system
-sudo chmod 644 mediatunes-service.service
+sudo chmod 644 mediatunes-svc.service
 ```
 - Enable the service with `systemctl enable`: 
 ```bash
-$ sudo systemctl enable mediatunes-service.service
-Created symlink /etc/systemd/system/multi-user.target.wants/mediatunes-service.service → /etc/systemd/system/mediatunes-service.service.
+$ sudo systemctl enable mediatunes-svc.service
+Created symlink /etc/systemd/system/multi-user.target.wants/mediatunes-svc.service → /etc/systemd/system/mediatunes-svc.service.
 ```
 - Start the service
 ```bash
-systemctl start mediatunes-service.service
+systemctl start mediatunes-svc.service
 ```
-- Use `systemctl status` to verify that mediatunes-service is running
+- Use `systemctl status` to verify that mediatunes-svc is running
 ```bash
-$ systemctl status mediatunes-service
-● mediatunes-service.service - mediatunes-service
-     Loaded: loaded (/etc/systemd/system/mediatunes-service.service; enabled; preset: enabled)
+$ systemctl status mediatunes-svc
+● mediatunes-svc.service - mediatunes-svc
+     Loaded: loaded (/etc/systemd/system/mediatunes-svc.service; enabled; preset: enabled)
      Active: active (running) since Mon 2026-09-07 10:25:00 CDT; 2s ago
    Main PID: 24056 (python)
       Tasks: 8 (limit: 38397)
      Memory: 181.9M (peak: 182.1M)
         CPU: 1.812s
-     CGroup: /system.slice/mediatunes-service.service
+     CGroup: /system.slice/mediatunes-svc.service
              └─24056 /home/brett/Git/bretttolbert/moongas/env/bin/python run.py ../mediatunes-config.yml
 
-Sep 07 10:25:00 pentatonic systemd[1]: Started mediatunes-service.service - mediatunes-service.
+Sep 07 10:25:00 pentatonic systemd[1]: Started mediatunes-svc.service - mediatunes-svc.
 Sep 07 10:25:02 pentatonic python[24056]: Loading configuration from file ../mediatunes-config.yml
 Sep 07 10:25:02 pentatonic python[24056]: INFO:     Started server process [24056]
 Sep 07 10:25:02 pentatonic python[24056]: INFO:     Waiting for application startup.
@@ -180,23 +181,23 @@ Sep 07 10:25:02 pentatonic python[24056]: INFO:     Uvicorn running on http://0.
 - If you make changes to a unit file, use the `systemctl daemon-reload` command to force systemd to reload it
 ```bash
 systemctl daemon-reload
-systemctl restart mediatunes-service
+systemctl restart mediatunes-svc
 ```
 - Once you have it set up to run as a service, re-scanning your library is as easy as this:
 ```bash
 cd moongas-go-mediascan
 go run cmd/scantodb/main.go mediascan-conf.yml ../mediascan.db
-sudo systemctl restart mediatunes-service
-journalctl -b -f -u mediatunes-service
+sudo systemctl restart mediatunes-svc
+journalctl -b -f -u mediatunes-svc
 ```
-- Use `-u` to specify the unit by name (`mediatunes-service`)
+- Use `-u` to specify the unit by name (`mediatunes-svc`)
 - Use `-f` to follow the log so you can watch the server startup
 - Use `-b` to only show output since last boot (avoids showing old output)
 
 ### Recommended directory structure for moongas
 
 Recommendations:
-- Create a `moongas` root directory and then clone the various components (such as `moongas-py-mediatunes-service`) inside it
+- Create a `moongas` root directory and then clone the various components (such as `moongas-py-mediatunes-svc`) inside it
 - Put the active config files (`mediatunes-config.yml`, `mediascan-config.yml`) in this root directory. 
 - Don't use the subproject default config files _in-place_, copy them to `moongas` root dir
 - Run commands such that output files (i.e. `mediascan.db`) reside in `moongas` root directory
@@ -212,22 +213,22 @@ brett@pentatonic:~/Git/bretttolbert/moongas$ tree -L 1
 ├── mediascan-files.yml
 ├── mediatunes-config.yml
 ├── moongas-go-mediascan
-├── moongas-java-mediatunes-service
+├── moongas-java-mediatunes-svc
 ├── moongas-py-mediascan
-├── moongas-py-mediatunes-service
+├── moongas-py-mediatunes-svc
 ├── moongas-py-mediatest
 ├── rename-album-files -> moongas-py-mediascan/scripts/rename_album_files.py
-├── restart-local-mediatunes-service -> moongas-py-mediatunes-service/dev/scripts/restart_local_mediaserver.sh
-├── restart-remote-mediatunes-service -> moongas-py-mediatunes-service/dev/scripts/restart_remote_mediaserver.sh
-├── run-mediascan-scanartistsyaml -> moongas-py-mediatunes-service/dev/scripts/run_mediascan_scanartistsyaml.sh
-├── run-mediascan-scanfilesyaml -> moongas-py-mediatunes-service/dev/scripts/run_mediascan_scanfilesyaml.sh
-├── run-mediascan-scantodb -> moongas-py-mediatunes-service/dev/scripts/run_mediascan_scantodb.sh
-├── run-mediatest -> moongas-py-mediatunes-service/dev/scripts/run_mediatest.sh
-├── update-covers -> moongas-py-mediatunes-service/dev/scripts/update_covers.sh
-├── update-everything -> moongas-py-mediatunes-service/dev/scripts/update_everything.sh
-├── upload-covers -> moongas-py-mediatunes-service/dev/scripts/upload_covers.sh
-├── upload-mediascandb -> moongas-py-mediatunes-service/dev/scripts/upload_mediascandb.sh
-├── upload-moongas-py-mediascan -> moongas-py-mediatunes-service/dev/scripts/upload_moongas-py-mediascan.sh
-└── upload-moongas-py-mediatunes-service -> moongas-py-mediatunes-service/dev/scripts/upload_moongas-py-mediaserver.sh
+├── restart-local-mediatunes-svc -> moongas-py-mediatunes-svc/dev/scripts/restart_local_mediaserver.sh
+├── restart-remote-mediatunes-svc -> moongas-py-mediatunes-svc/dev/scripts/restart_remote_mediaserver.sh
+├── run-mediascan-scanartistsyaml -> moongas-py-mediatunes-svc/dev/scripts/run_mediascan_scanartistsyaml.sh
+├── run-mediascan-scanfilesyaml -> moongas-py-mediatunes-svc/dev/scripts/run_mediascan_scanfilesyaml.sh
+├── run-mediascan-scantodb -> moongas-py-mediatunes-svc/dev/scripts/run_mediascan_scantodb.sh
+├── run-mediatest -> moongas-py-mediatunes-svc/dev/scripts/run_mediatest.sh
+├── update-covers -> moongas-py-mediatunes-svc/dev/scripts/update_covers.sh
+├── update-everything -> moongas-py-mediatunes-svc/dev/scripts/update_everything.sh
+├── upload-covers -> moongas-py-mediatunes-svc/dev/scripts/upload_covers.sh
+├── upload-mediascandb -> moongas-py-mediatunes-svc/dev/scripts/upload_mediascandb.sh
+├── upload-moongas-py-mediascan -> moongas-py-mediatunes-svc/dev/scripts/upload_moongas-py-mediascan.sh
+└── upload-moongas-py-mediatunes-svc -> moongas-py-mediatunes-svc/dev/scripts/upload_moongas-py-mediaserver.sh
 
 ```

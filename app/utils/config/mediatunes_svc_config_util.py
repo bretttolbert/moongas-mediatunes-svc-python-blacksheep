@@ -6,7 +6,7 @@ from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
 
 class MediatunesServiceConfigUtil(BaseConfigUtil[MediatunesServiceConfig]):
     """
-    Utility class for loading mediatunes-service configuration from YAML config file
+    Utility class for loading mediatunes-svc configuration from YAML config file
     """
 
     yaml_filename = "mediatunes-config.yml"

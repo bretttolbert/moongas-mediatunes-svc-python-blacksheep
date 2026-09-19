@@ -10,8 +10,8 @@ serverConfig:
   port: 5000
   debug: false
   useReloader: false
-  staticUrlPath: /mediatunes-service/static
-  urlPrefix: /mediatunes-service
+  staticUrlPath: /static
+  urlPrefix: /api
 playbackMethods:
   local:
     enabled: true

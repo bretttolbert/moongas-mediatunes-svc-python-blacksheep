@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mediatunes-service"
+name = "mediatunes-svc"
 version = "1.2.0"
 requires-python = ">=3.11"
 authors = [{ name = "Brett Tolbert", email = "bretttolbert@gmail.com" }]
@@ -51,7 +51,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mediatunes-service = "run:main"
+mediatunes-svc = "run:main"
 
 [project.optional-dependencies]
 dev = [
@@ -64,11 +64,11 @@ stats = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/bretttolbert/moongas-py-mediatunes-service"
-Documentation = "https://github.com/bretttolbert/moongas-py-mediatunes-service"
-Repository = "https://github.com/bretttolbert/moongas-py-mediatunes-service.git"
-"Bug Tracker" = "https://github.com/bretttolbert/moongas-py-mediatunes-service/issues"
-Changelog = "https://github.com/bretttolbert/moongas-py-mediatunes-service/blob/master/CHANGELOG.md"
+"Homepage" = "https://github.com/bretttolbert/moongas-py-mediatunes-svc"
+Documentation = "https://github.com/bretttolbert/moongas-py-mediatunes-svc"
+Repository = "https://github.com/bretttolbert/moongas-py-mediatunes-svc.git"
+"Bug Tracker" = "https://github.com/bretttolbert/moongas-py-mediatunes-svc/issues"
+Changelog = "https://github.com/bretttolbert/moongas-py-mediatunes-svc/blob/master/CHANGELOG.md"
 
 [tool.setuptools]
 py-modules = ["run"]

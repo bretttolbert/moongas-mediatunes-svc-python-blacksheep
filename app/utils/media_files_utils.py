@@ -358,7 +358,7 @@ class ArtistQueryCountInfo:
 
         name="Country"
         value="United States"
-        url="http://localhost/mediatunes-service/artists?sort=count&countryCode=US"
+        url="http://localhost/mediatunes-svc/artists?sort=count&countryCode=US"
         count=1611
 
     Observe that name and value are user-facing strings describing the query,
