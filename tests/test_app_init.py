@@ -4,12 +4,12 @@ from typing import cast
 import pandas as pd
 import pytest
 from app import create_app
-from app.types.config.mediaserver_config import MediaServerConfig
+from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
 
 
 def test_create_app_missing_database_file(tmp_path: Path):
     non_existent_db = tmp_path / "non_existent.db"
-    config = MediaServerConfig(
+    config = MediatunesServiceConfig(
         mediascan_database_file_path=f"sqlite:///{non_existent_db}"
     )
     with pytest.raises(FileNotFoundError, match="SQLite database file not found"):
@@ -19,7 +19,9 @@ def test_create_app_missing_database_file(tmp_path: Path):
 def test_create_app_empty_database_file(tmp_path: Path):
     empty_db = tmp_path / "empty.db"
     empty_db.touch()
-    config = MediaServerConfig(mediascan_database_file_path=f"sqlite:///{empty_db}")
+    config = MediatunesServiceConfig(
+        mediascan_database_file_path=f"sqlite:///{empty_db}"
+    )
     with pytest.raises(ValueError, match="is empty"):
         create_app(config)
 
@@ -31,7 +33,9 @@ def test_create_app_missing_required_tables(tmp_path: Path):
     conn.commit()
     conn.close()
 
-    config = MediaServerConfig(mediascan_database_file_path=f"sqlite:///{db_file}")
+    config = MediatunesServiceConfig(
+        mediascan_database_file_path=f"sqlite:///{db_file}"
+    )
     with pytest.raises(ValueError, match="missing required table"):
         create_app(config)
 
@@ -50,7 +54,9 @@ def test_create_app_valid_database(tmp_path: Path):
     conn.commit()
     conn.close()
 
-    config = MediaServerConfig(mediascan_database_file_path=f"sqlite:///{db_file}")
+    config = MediatunesServiceConfig(
+        mediascan_database_file_path=f"sqlite:///{db_file}"
+    )
     app = create_app(config)
     assert app is not None
     files_df = cast(pd.DataFrame, app.config["MEDIASCAN_DB_FILES"])

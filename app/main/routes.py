@@ -1,13 +1,14 @@
 """
-Non-Jinja routes kept for the Vue SPA frontend:
+Non-Jinja routes kept for the web frontend (which lives in a separate repo):
 
 - /getfile/<path>  serves media files and album covers from disk
 - /api/track       returns a single random track matching the filter args
                    (this route predates the app/api blueprint and is kept
                    for backwards compatibility)
 
-All server-rendered Jinja page routes were removed; the SPA (client/)
-renders pages client-side using the JSON API in app/api/routes.py.
+All server-rendered Jinja page routes were removed; the frontend
+single-page application renders pages client-side using the JSON API in
+app/api/routes.py.
 """
 
 import os

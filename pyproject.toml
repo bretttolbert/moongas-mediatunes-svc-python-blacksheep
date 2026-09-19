@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mediaserver"
+name = "mediatunes-service"
 version = "1.2.0"
 requires-python = ">=3.11"
 authors = [{ name = "Brett Tolbert", email = "bretttolbert@gmail.com" }]
@@ -51,7 +51,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mediaserver = "run:main"
+mediatunes-service = "run:main"
 
 [project.optional-dependencies]
 dev = [
@@ -63,11 +63,11 @@ stats = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/bretttolbert/moongas-py-mediaserver"
-Documentation = "https://github.com/bretttolbert/moongas-py-mediaserver"
-Repository = "https://github.com/bretttolbert/moongas-py-mediaserver.git"
-"Bug Tracker" = "https://github.com/bretttolbert/moongas-py-mediaserver/issues"
-Changelog = "https://github.com/bretttolbert/moongas-py-mediaserver/blob/master/CHANGELOG.md"
+"Homepage" = "https://github.com/bretttolbert/moongas-py-mediatunes-service"
+Documentation = "https://github.com/bretttolbert/moongas-py-mediatunes-service"
+Repository = "https://github.com/bretttolbert/moongas-py-mediatunes-service.git"
+"Bug Tracker" = "https://github.com/bretttolbert/moongas-py-mediatunes-service/issues"
+Changelog = "https://github.com/bretttolbert/moongas-py-mediatunes-service/blob/master/CHANGELOG.md"
 
 [tool.setuptools]
 py-modules = ["run"]
@@ -77,7 +77,7 @@ app = ['py.typed', "templates/*", "static/**/*"]
 
 [tool.setuptools.packages.find]
 where = ["src", "."]
-include = ["app*", "mediaserver*", "scripts"]
+include = ["app*", "mediatunes_svc*", "scripts"]
 
 [tool.pytest.ini_options]
 pythonpath = [

@@ -9,6 +9,9 @@
             "source.organizeImports": "never"
         }
     },
+    "files.associations": {
+        "*.service": "ini"
+    },
     "files.exclude": {
         "**/__pycache__": true,
         "**/*.pyc": true,

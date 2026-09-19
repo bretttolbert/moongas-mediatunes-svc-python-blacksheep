@@ -43,44 +43,9 @@ jobs:
         run: |
           ruff check .
 
-  client:
-    name: Client (type-check + build)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: client
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-
-      - name: Install client dependencies (deno.lock)
-        run: deno install
-
-      - name: Type-check client (vue-tsc)
-        run: deno task check
-
-      - name: Build client
-        run: deno task build
-
-      - name: Upload client build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: client-dist
-          path: client/dist/
-
   build:
     name: Build package
-    needs: [test, client]
+    needs: [test]
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

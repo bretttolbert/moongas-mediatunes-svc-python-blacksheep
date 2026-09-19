@@ -1,8 +1,8 @@
 """
-JSON API routes for the Vue/TypeScript single-page application.
+JSON API routes consumed by the mediatunes-service web frontend.
 
-These endpoints expose the same data as the server-rendered Jinja routes
-(see app/main/routes.py) but as JSON, so the SPA can render pages
+The frontend single-page application lives in a separate repo; these
+endpoints expose the media library data as JSON so it can render pages
 client-side. They reuse the filtering/counting logic in
 app/utils/media_files_utils.py.
 """

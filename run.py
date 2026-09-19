@@ -3,14 +3,14 @@ import sys
 from pathlib import Path
 
 from app import create_app
-from app.utils.config.mediaserver_config_util import MediaServerConfigUtil
+from app.utils.config.mediatunes_svc_config_util import MediatunesServiceConfigUtil
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-logger = logging.getLogger("mediaserver")
+logger = logging.getLogger("mediatunes_svc")
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
         logger.warning("No config file specified, loading default configuration")
 
     try:
-        config = MediaServerConfigUtil().load_config(config_filepath)
+        config = MediatunesServiceConfigUtil().load_config(config_filepath)
     except Exception as ex:
         logger.error("Failed to load configuration from '%s': %s", config_filepath, ex)
         sys.exit(1)
@@ -34,7 +34,7 @@ def main():
     try:
         app = create_app(config)
     except Exception as ex:
-        logger.error("Failed to initialize mediaserver application: %s", ex)
+        logger.error("Failed to initialize mediatunes-service application: %s", ex)
         sys.exit(1)
 
     if config_filepath is None:
@@ -53,7 +53,7 @@ def main():
             port=config.flask_config.port,
         )
     except Exception as ex:
-        logger.error("Error while running mediaserver: %s", ex)
+        logger.error("Error while running mediatunes-service: %s", ex)
         sys.exit(1)
 
 

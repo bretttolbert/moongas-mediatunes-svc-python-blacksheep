@@ -38,7 +38,7 @@ class MediaFile:
     languageCode: str
 
 
-from app.types.config.mediaserver_config import MediaServerConfig
+from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
 from app.types.arg_types import (
     args_dict_to_str,
     ArgsDict,
@@ -359,7 +359,7 @@ class ArtistQueryCountInfo:
 
         name="Country"
         value="United States"
-        url="http://localhost/mediaserver/artists?sort=count&countryCode=US"
+        url="http://localhost/mediatunes-service/artists?sort=count&countryCode=US"
         count=1611
 
     Observe that name and value are user-facing strings describing the query,
@@ -565,7 +565,7 @@ def get_word_cloud_data_artists(
     return ret
 
 
-def get_cover_path(config: MediaServerConfig, file: MediaFile) -> Path:
+def get_cover_path(config: MediatunesServiceConfig, file: MediaFile) -> Path:
     dir_path = Path(file.path.replace(os.path.basename(file.path), ""))
     if config.album_covers_path != config.playback_methods.local.media_path:
         # e.g. "/data/Music/Logic/Orville%20[2022]/cover.jpg"

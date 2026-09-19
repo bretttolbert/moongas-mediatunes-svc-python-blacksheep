@@ -10,7 +10,7 @@ Jinja2==3.1.6
 joblib==1.6.0
 MarkupSafe==3.0.3
 mediascan @ git+https://github.com/bretttolbert/moongas-py-mediascan.git@e9a6faa1a4769b149cabd235b1c2e2061e83c66a
--e git+ssh://git@github.com/bretttolbert/moongas-py-mediaserver.git@2922ae9bcae8e559e4d1beb1495d90ef13ae7696#egg=mediaserver
+-e git+ssh://git@github.com/bretttolbert/moongas-py-mediatunes-service.git@2922ae9bcae8e559e4d1beb1495d90ef13ae7696#egg=mediatunes-service
 narwhals==2.26.0
 numpy==2.5.3
 pandas==3.0.5

@@ -7,13 +7,13 @@ import pandas as pd
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.types.config.mediaserver_config import MediaServerConfig
+from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
 
 logger = logging.getLogger(__name__)
 
 
 def register_blueprint(
-    app: Flask, config: MediaServerConfig, url_prefix: Optional[str] = None
+    app: Flask, config: MediatunesServiceConfig, url_prefix: Optional[str] = None
 ):
     from app.main import bp
     from app.api import bp as api_bp
@@ -26,7 +26,7 @@ def register_blueprint(
         app.register_blueprint(api_bp, url_prefix=f"{url_prefix}/api")
 
 
-def create_app(config: MediaServerConfig) -> Flask:
+def create_app(config: MediatunesServiceConfig) -> Flask:
     root_path = config.flask_config.root_path
     url_prefix = config.flask_config.url_prefix
     static_url_path = config.flask_config.static_url_path
@@ -34,11 +34,13 @@ def create_app(config: MediaServerConfig) -> Flask:
     app.logger.debug("flask_config.root_path: %s", root_path)
     app.logger.debug("flask_config.url_prefix: %s", url_prefix)
     app.logger.debug("flask_config.static_url_path: %s", static_url_path)
-    app.config["MEDIASERVER_CONFIG"] = config
+    app.config["MEDIATUNES_SVC_CONFIG"] = config
 
     db_path = config.mediascan_database_file_path
     if not db_path:
-        error_msg = "No mediascan database file path configured in mediaserver config."
+        error_msg = (
+            "No mediascan database file path configured in mediatunes-service config."
+        )
         app.logger.error(error_msg)
         raise ValueError(error_msg)
 
@@ -64,7 +66,7 @@ def create_app(config: MediaServerConfig) -> Flask:
             if resolved_sqlite_path.stat().st_size == 0:
                 error_msg = (
                     f"SQLite database file at '{resolved_sqlite_path}' is empty (0 bytes). "
-                    "Please populate the database using mediascan before running mediaserver."
+                    "Please populate the database using mediascan before running mediatunes-service."
                 )
                 app.logger.error(error_msg)
                 raise ValueError(error_msg)

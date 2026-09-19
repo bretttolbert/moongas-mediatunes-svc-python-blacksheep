@@ -5,10 +5,12 @@ import sqlalchemy as sa
 
 import pandas as pd
 
-from app.types.config.mediaserver_config import MediaServerConfig
+from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
 
-def get_config(app: Flask) -> MediaServerConfig:
-    return cast(MediaServerConfig, current_app.config["MEDIASERVER_CONFIG"])
+
+def get_config(app: Flask) -> MediatunesServiceConfig:
+    return cast(MediatunesServiceConfig, current_app.config["MEDIATUNES_SVC_CONFIG"])
+
 
 def get_mediascan_db_connection(app: Flask) -> sa.Connection:
     return cast(sa.Connection, current_app.config["MEDIASCAN_DB_CONN"])

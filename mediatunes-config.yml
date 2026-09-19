@@ -11,9 +11,9 @@ flaskConfig:
   debug: false
   useDebugger: false
   useReloader: false
-  rootPath: /var/www/moongas/moongas-py-mediaserver/app
-  staticUrlPath: /mediaserver/static
-  urlPrefix: /mediaserver
+  rootPath: /var/www/moongas/moongas-py-mediatunes-service/app
+  staticUrlPath: /mediatunes-service/static
+  urlPrefix: /mediatunes-service
 playbackMethods:
   local:
     enabled: true

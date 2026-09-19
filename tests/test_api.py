@@ -5,7 +5,7 @@ import pytest
 from flask import Flask
 
 from app import create_app
-from app.types.config.mediaserver_config import MediaServerConfig
+from app.types.config.mediatunes_svc_config import MediatunesServiceConfig
 
 
 @pytest.fixture()
@@ -47,7 +47,9 @@ def app(tmp_path: Path) -> Flask:
     conn.commit()
     conn.close()
 
-    config = MediaServerConfig(mediascan_database_file_path=f"sqlite:///{db_file}")
+    config = MediatunesServiceConfig(
+        mediascan_database_file_path=f"sqlite:///{db_file}"
+    )
     return create_app(config)
 
 

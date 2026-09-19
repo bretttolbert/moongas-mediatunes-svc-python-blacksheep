@@ -1,0 +1,18 @@
+[Unit]
+# Flask backend: serves the JSON API (/mediatunes-service/api/*) and media files
+# (/mediatunes-service/getfile/*). The web frontend single-page application lives
+# in a separate repo.
+Description=mediatunes-service (Flask JSON API backend)
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/var/www/moongas
+ExecStart=/var/www/moongas/.venv/bin/python -m mediatunes_svc mediatunes-config.yml
+Restart=always
+RestartSec=30s
+Type=simple
+
+[Install]
+WantedBy=multi-user.target
