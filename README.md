@@ -9,7 +9,7 @@
 
 ## Overview
 
-**Python+BlackSheep API service for Moongas hybrid media collections—backend for the `moongas-mediatunes-web` application**
+**Python+BlackSheep API service for Moongas hybrid media collections—backend for the Moongas `mediatunes` web application**
 
 ### A component of the `moongas` ecosystem of media library tools
 
