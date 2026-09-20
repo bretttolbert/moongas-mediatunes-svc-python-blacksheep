@@ -64,11 +64,11 @@ stats = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/bretttolbert/moongas-py-mediatunes-svc"
-Documentation = "https://github.com/bretttolbert/moongas-py-mediatunes-svc"
-Repository = "https://github.com/bretttolbert/moongas-py-mediatunes-svc.git"
-"Bug Tracker" = "https://github.com/bretttolbert/moongas-py-mediatunes-svc/issues"
-Changelog = "https://github.com/bretttolbert/moongas-py-mediatunes-svc/blob/master/CHANGELOG.md"
+"Homepage" = "https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep"
+Documentation = "https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep"
+Repository = "https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep.git"
+"Bug Tracker" = "https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep/issues"
+Changelog = "https://github.com/bretttolbert/moongas-mediatunes-svc-python-blacksheep/blob/master/CHANGELOG.md"
 
 [tool.setuptools]
 py-modules = ["run"]

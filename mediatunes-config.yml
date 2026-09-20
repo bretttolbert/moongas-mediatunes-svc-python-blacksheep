@@ -8,7 +8,8 @@ maxResultsAlbumCovers: 500
 serverConfig:
   host: 0.0.0.0
   port: 5000
-  debug: false
+  debug: true
+  useDebugger: false
   useReloader: false
   staticUrlPath: /static
   urlPrefix: /api
