@@ -28,26 +28,13 @@
 python run.py mediatunes-config.yml
 ```
 
-## Dependencies
+## (API) Live Demos
+- [Live Demo (hosted on bretttolbert.com)](https://bretttolbert.com/mediatunes/api)
+- [Live Demo (hosted on moongas.org)](https://moongas.org/mediatunes/api)
 
-- [moongas-mediascan-golang](https://github.com/bretttolbert/moongas-mediascan-golang) - used for: scanning music library files into a Moongas sqlite3 database
-- [moongas-mediascan-python](https://github.com/bretttolbert/moongas-mediascan-python) - used for: loading the Moongas database
+### (API) albums - filtered by year range
 
-## Live Demos
-- [Live Demo (hosted on bretttolbert.com)](https://bretttolbert.com/mediaserver)
-- [Live Demo (hosted on moongas.org)](https://moongas.org/mediaserver)
-
-### Filter by year range
-
-[bretttolbert.com/mediatunes/albums?minYear=1990&maxYear=2004](https://bretttolbert.com/mediaserver/albums?minYear=1990&maxYear=2004)
-
-### Filter by year range and genre(s)
-
-[bretttolbert.com/mediatunes/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français](https://bretttolbert.com/mediaserver/player?minYear=1960&maxYear=2024&genre=Industrial+Metal&genre=Punk&genre=Punk+Rock&genre=Heavy+Metal&genre=Hip+Hop&genre=Urbano&genre=Thrash+Metal&genre=Nu+Metal&genre=Rock+en+español&genre=Funk+Metal&genre=Hip-Hop+français)
-
-### Filter by artist, album and title
-
-[bretttolbert.com/mediatunes/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric](https://bretttolbert.com/mediaserver/player?artist=Rush&album=Grace%20Under%20Pressure&title=The%20Body%20Electric)
+[bretttolbert.com/mediatunes/api/albums?minYear=1990&maxYear=2004](https://bretttolbert.com/mediatunes/api/albums?minYear=1990&maxYear=2004)
 
 ## Screenshots
 
@@ -56,7 +43,6 @@ python run.py mediatunes-config.yml
 ## Web frontend
 
 The web UI single-page application (Vue 3 + TypeScript, built with Vite) has moved to a separate repo. It consumes this backend's JSON API (`app/api/` — `/api/config`, `/api/albums`, `/api/tracks`, `/api/artists`, `/api/artist`, `/api/genres`, `/api/artist-geo/<kind>`, `/api/wordcloud/*`, `/api/random-track`) and the media files via `/getfile/*`.
-
 
 ## Features
 
@@ -173,7 +159,7 @@ $ systemctl status mediatunes-svc
      Memory: 181.9M (peak: 182.1M)
         CPU: 1.812s
      CGroup: /system.slice/mediatunes-svc.service
-             └─24056 /home/brett/Git/bretttolbert/moongas/env/bin/python run.py ../mediatunes-config.yml
+             └─24056 /home/brett/Git/bretttolbert/moongas/.venv/bin/python run.py ../mediatunes-config.yml
 
 Sep 07 10:25:00 pentatonic systemd[1]: Started mediatunes-svc.service - mediatunes-svc.
 Sep 07 10:25:02 pentatonic python[24056]: Loading configuration from file ../mediatunes-config.yml
@@ -189,8 +175,8 @@ systemctl restart mediatunes-svc
 ```
 - Once you have it set up to run as a service, re-scanning your library is as easy as this:
 ```bash
-cd moongas-mediascan-golang
-go run cmd/mediascan-db/main.go mediascan-conf.yml ../mediascan.db
+cd moongas-mediascan-go
+go run cmd/scan-to-db/main.go mediascan-conf.yml ../mediascan.db
 sudo systemctl restart mediatunes-svc
 journalctl -b -f -u mediatunes-svc
 ```
@@ -209,122 +195,12 @@ Recommendations:
 ```bash
 brett@pentatonic:~/Git/bretttolbert/moongas$ tree -L 1
 .
-├── dev
 ├── moongas-collection-demo
 ├── moongas-collection-local
-├── moongas-mediascan-golang
+├── moongas-mediascan-go
 ├── moongas-mediascan-python
 ├── moongas-mediatest-python-pytest
 ├── moongas-mediatunes-svc-java-javalin
 ├── moongas-mediatunes-svc-python-blacksheep
 └── moongas-mediatunes-web-vue
-
-10 directories, 0 files
-```
-
-```bash
-brett@pentatonic:~/Git/bretttolbert/moongas$ tree -L 2
-.
-├── dev
-│   ├── etc-nginx-sites-available-bretttolbert.com
-│   └── get_artist_info.py
-├── moongas-collection-demo
-│   ├── ci-local.sh
-│   ├── data
-│   ├── LICENSE
-│   ├── mediascan-artists.yml
-│   ├── mediascan-config.yml
-│   ├── mediascan.db
-│   ├── mediascan-files.yml
-│   ├── mediaserver-config.yml
-│   ├── mediatest-config.yml
-│   ├── moongas-go-mediascan -> ../moongas-go-mediascan/
-│   ├── moongas-mediatunes-web -> ../moongas-mediatunes-web
-│   ├── moongas-py-mediascan -> ../moongas-py-mediascan/
-│   ├── moongas-py-mediatest -> ../moongas-py-mediatest/
-│   ├── moongas-py-mediatunes-svc -> ../moongas-py-mediatunes-svc
-│   ├── README.md
-│   └── templates
-├── moongas-collection-local
-│   ├── data
-│   ├── LICENSE
-│   ├── mediascan-artists.yml
-│   ├── mediascan-config.yml
-│   ├── mediascan.db
-│   ├── mediascan-files.yml
-│   ├── mediaserver-config.yml
-│   ├── mediatest-config.yml
-│   ├── moongas-go-mediascan -> ../moongas-go-mediascan/
-│   ├── moongas-mediatunes-web -> ../moongas-mediatunes-web
-│   ├── moongas-py-mediascan -> ../moongas-py-mediascan/
-│   ├── moongas-py-mediatest -> ../moongas-py-mediatest/
-│   ├── moongas-py-mediatunes-svc -> ../moongas-py-mediatunes-svc
-│   ├── README.md
-│   └── templates
-├── moongas-mediascan-golang
-│   ├── cmd
-│   ├── go.mod
-│   ├── go.sum
-│   ├── internal
-│   ├── LICENSE
-│   ├── mediascan-config.yml
-│   └── README.md
-├── moongas-mediascan-python
-│   ├── build
-│   ├── LICENSE
-│   ├── mediascan.egg-info
-│   ├── mediastats.log
-│   ├── pyproject.toml
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── scripts
-│   ├── src
-│   ├── tests
-│   └── typings
-├── moongas-mediatest-python-pytest
-│   ├── build
-│   ├── LICENSE
-│   ├── mediatest-config.yml
-│   ├── mediatest.egg-info
-│   ├── pyproject.toml
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── src
-│   └── tests
-├── moongas-mediatunes-svc-java-javalin
-│   ├── build
-│   ├── build.gradle
-│   ├── gradle
-│   ├── gradle.properties
-│   ├── gradlew
-│   ├── gradlew.bat
-│   ├── moongas-server
-│   ├── README.md
-│   └── settings.gradle
-├── moongas-mediatunes-svc-python-blacksheep
-│   ├── app
-│   ├── build
-│   ├── dev
-│   ├── doc
-│   ├── LICENSE
-│   ├── mediascan.db -> ../moongas-collection-local/mediascan.db
-│   ├── mediatunes-config.yml
-│   ├── mediatunes_service.egg-info
-│   ├── mediatunes_svc
-│   ├── mediatunes_svc.egg-info
-│   ├── mediatunes-svc.service
-│   ├── pyproject.toml
-│   ├── README.md
-│   ├── requirements.txt
-│   ├── run.py
-│   └── tests
-└── moongas-mediatunes-web-vue
-    ├── client
-    ├── deno.json
-    ├── doc
-    ├── LICENSE
-    ├── mediatunes-web.service
-    ├── README.md
-    └── server
-
 ```
