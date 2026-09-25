@@ -48,3 +48,21 @@ playbackMethods:
   - name: Deezer
     enabled: true
     searchQueryURLFormat: "https://deezer.com/search/{artist}%20{album}%20{title}"
+  - name: Discogs
+    enabled: true
+    searchQueryURLFormat: "https://www.discogs.com/search?q={artist}%20{album}%20{title}&type=all"
+  - name: MusicBrainz
+    enabled: true
+    searchQueryURLFormat: "https://musicbrainz.org/search?query={artist}%20{album}%20{title}&type=all"
+  - name: Last.fm
+    enabled: true
+    searchQueryURLFormat: "https://www.last.fm/search?q={artist}%20{album}%20{title}"
+  - name: Bandcamp
+    enabled: true
+    searchQueryURLFormat: "https://bandcamp.com/search?q={artist}%20{album}%20{title}"
+  - name: SoundCloud
+    enabled: true
+    searchQueryURLFormat: "https://soundcloud.com/search?q={artist}%20{album}%20{title}"
+  - name: Wikipedia
+    enabled: true
+    searchQueryURLFormat: "https://en.wikipedia.org/w/index.php?search={artist}%20{album}%20{title}"
